@@ -9,7 +9,6 @@
       "value": "LIMBI"
     }
   ],
-  "domains": ["gothyxan.store"],
   "git": {
     "deploymentEnabled": true
   }
