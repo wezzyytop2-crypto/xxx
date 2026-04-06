@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { AppShell } from "@/components/app-shell";
-import { AppProvider } from "@/components/providers/app-provider";
-import { PwaProvider } from "@/components/providers/pwa-provider";
-import { ErrorBoundaryProvider } from "@/components/providers/error-boundary-provider";
+import { RootLayoutClient } from "@/components/providers/root-layout-client";
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME || "LIMBI";
 
@@ -51,13 +48,9 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body>
-        <ErrorBoundaryProvider>
-          <AppProvider>
-            <PwaProvider>
-              <AppShell>{children}</AppShell>
-            </PwaProvider>
-          </AppProvider>
-        </ErrorBoundaryProvider>
+        <RootLayoutClient>
+          {children}
+        </RootLayoutClient>
       </body>
     </html>
   );
