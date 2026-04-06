@@ -39,6 +39,14 @@ const BUILT_IN_VERSION = "2026-04-03-cards-52";
 
 let dbPromise: Promise<IDBPDatabase<LimbiDatabase>> | null = null;
 
+// Кеш для loadSnapshot с временем жизни 5 минут
+interface CacheEntry {
+  data: Awaited<ReturnType<typeof loadSnapshotUncached>>;
+  timestamp: number;
+}
+const CACHE_TTL = 5 * 60 * 1000; // 5 минут
+let snapshotCache: CacheEntry | null = null;
+
 function getDatabase() {
   if (!dbPromise) {
     dbPromise = openDB<LimbiDatabase>(DB_NAME, DB_VERSION, {
@@ -144,6 +152,24 @@ export async function ensureSeedData() {
 }
 
 export async function loadSnapshot() {
+  const now = Date.now();
+  
+  // Проверяем кеш
+  if (snapshotCache && (now - snapshotCache.timestamp) < CACHE_TTL) {
+    return snapshotCache.data;
+  }
+
+  // Загружаем из БД
+  const data = await loadSnapshotUncached();
+  snapshotCache = { data, timestamp: now };
+  return data;
+}
+
+/**
+ * Загружает полный snapshot из БД без кеширования
+ * @internal
+ */
+async function loadSnapshotUncached() {
   const database = await getDatabase();
   const [sets, progress, reviews] = await Promise.all([
     database.getAll("sets"),
@@ -160,6 +186,15 @@ export async function loadSnapshot() {
   };
 }
 
+/**
+ * Invalidates the snapshot cache
+ * Call this after mutations (create, update, delete)
+ * @internal
+ */
+function invalidateCache() {
+  snapshotCache = null;
+}
+
 export async function createSet(input: SaveSetInput) {
   const database = await getDatabase();
   const now = new Date().toISOString();
@@ -174,6 +209,7 @@ export async function createSet(input: SaveSetInput) {
   };
 
   await database.put("sets", set);
+  invalidateCache();
   return set;
 }
 
@@ -199,6 +235,7 @@ export async function updateSet(setId: string, input: SaveSetInput) {
 
   await database.put("sets", nextSet);
   await removeCardArtifacts(database, removedCards);
+  invalidateCache();
 
   return nextSet;
 }
@@ -216,6 +253,7 @@ export async function deleteSet(setId: string) {
     database,
     set.cards.map((card) => card.id)
   );
+  invalidateCache();
 }
 
 export async function recordReview({
@@ -246,6 +284,7 @@ export async function recordReview({
   await progressStore.put(nextProgress);
   await tx.objectStore("reviews").put(review);
   await tx.done;
+  invalidateCache();
 
   return {
     progress: nextProgress,
@@ -265,4 +304,5 @@ export async function resetSetProgress(setId: string) {
     database,
     set.cards.map((card) => card.id)
   );
+  invalidateCache();
 }

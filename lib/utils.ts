@@ -166,6 +166,27 @@ export function labelForReviewResult(result: ReviewResult) {
   return labels[result];
 }
 
+/**
+ * Type guard для проверки, является ли значение валидным PartOfSpeech
+ */
+export function isValidPartOfSpeech(value: unknown): value is PartOfSpeech {
+  const validParts: PartOfSpeech[] = [
+    "noun",
+    "verb",
+    "adjective",
+    "adverb",
+    "phrase",
+    "expression",
+    "pronoun",
+    "preposition",
+    "conjunction",
+    "determiner",
+    "numeral",
+    "interjection"
+  ];
+  return typeof value === "string" && (validParts as string[]).includes(value);
+}
+
 export function partOfSpeechLabel(value: PartOfSpeech) {
   const labels: Record<PartOfSpeech, string> = {
     noun: "Существительное",

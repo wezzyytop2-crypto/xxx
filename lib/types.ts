@@ -102,3 +102,37 @@ export type AppStats = {
   xp: number;
   level: number;
 };
+
+/**
+ * Запись словаря румынско-русского
+ */
+export type DictionaryEntry = {
+  id: string;
+  romanian: string;
+  russian: string;
+  partOfSpeech: PartOfSpeech;
+  gender?: 'm' | 'f' | 'n';
+  ipa?: string; // Международная фонетическая транскрипция
+  examples?: Array<{
+    romanian: string;
+    russian: string;
+  }>;
+  synonyms?: string[];
+  antonyms?: string[];
+  etymology?: string;
+  frequency?: number; // 1-5, где 5 = очень частое слово
+};
+
+/**
+ * Результат поиска перевода
+ */
+export type TranslationResult = {
+  exact: DictionaryEntry[];
+  partial: DictionaryEntry[];
+  suggestions: string[];
+};
+
+/**
+ * Направление перевода
+ */
+export type TranslationDirection = 'ro-ru' | 'ru-ro';

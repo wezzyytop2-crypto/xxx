@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useApp } from "@/components/providers/app-provider";
 import type { CardDraft, SaveSetInput } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, isValidPartOfSpeech } from "@/lib/utils";
 
 export function BulkImportCSV() {
   const { createSetItem } = useApp();
@@ -23,39 +23,74 @@ export function BulkImportCSV() {
         
         // Ожидаемый формат: term,translation,example,note,partOfSpeech
         const cards: CardDraft[] = [];
+        const errors: string[] = [];
         
-        for (const line of lines) {
-          const [term, translation, example = "", note = "", partOfSpeech = "noun"] = line.split(",").map(s => s.trim());
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+          const line = lines[lineIndex];
+          const parts = line.split(",").map(s => s.trim());
           
-          if (!term || !translation) continue;
+          // Валидация минимальных требований
+          if (parts.length < 2) {
+            errors.push(`Строка ${lineIndex + 1}: недостаточно полей (мин. 2: term,translation)`);
+            continue;
+          }
+          
+          const [term, translation, example = "", note = "", partOfSpeechRaw = "noun"] = parts;
+          
+          // Валидация term и translation
+          if (!term) {
+            errors.push(`Строка ${lineIndex + 1}: пустое слово`);
+            continue;
+          }
+          if (!translation) {
+            errors.push(`Строка ${lineIndex + 1}: пустой перевод`);
+            continue;
+          }
+          
+          // Валидация partOfSpeech с type guard
+          const partOfSpeech = isValidPartOfSpeech(partOfSpeechRaw) 
+            ? partOfSpeechRaw 
+            : "noun";
+          
+          if (!isValidPartOfSpeech(partOfSpeechRaw) && partOfSpeechRaw !== "noun") {
+            errors.push(`Строка ${lineIndex + 1}: неизвестный тип слова "${partOfSpeechRaw}" (использовано "noun")`);
+          }
           
           cards.push({
             term,
             translation,
             example,
             note,
-            partOfSpeech: (partOfSpeech as any) || "noun"
+            partOfSpeech
           });
         }
 
         if (cards.length === 0) {
-          setMessage({ type: "error", text: "❌ Не найдено валидных слов в файле" });
+          const errorText = errors.length > 0 
+            ? `❌ Не найдено валидных слов. Ошибки:\n${errors.slice(0, 3).join("\n")}`
+            : "❌ Не найдено валидных слов в файле";
+          setMessage({ type: "error", text: errorText });
           return;
         }
 
         const setTitle = file.name.replace(".csv", "") || "Импортированный набор";
         const input: SaveSetInput = {
           title: setTitle,
-          description: `Импортировано ${cards.length} слов из файла`,
+          description: `Импортировано ${cards.length} слов из файла${errors.length > 0 ? ` (${errors.length} ошибок исправлено)` : ""}`,
           color: "teal",
           cards
         };
 
         await createSetItem(input);
-        setMessage({ type: "success", text: `✅ Импортировано ${cards.length} слов!` });
+        const successMsg = `✅ Импортировано ${cards.length} слов!${errors.length > 0 ? ` (${errors.length} строк с предупреждениями)` : ""}`;
+        setMessage({ type: "success", text: successMsg });
         setTimeout(() => setMessage(null), 3000);
       } catch (error) {
-        setMessage({ type: "error", text: "❌ Ошибка при загрузке файла" });
+        console.error("CSV import error:", error);
+        const errorMsg = error instanceof Error 
+          ? `❌ Ошибка при загрузке файла: ${error.message}`
+          : "❌ Ошибка при загрузке файла";
+        setMessage({ type: "error", text: errorMsg });
       } finally {
         setLoading(false);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -88,7 +123,7 @@ export function BulkImportCSV() {
       />
       {message && (
         <p className={cn(
-          "text-sm",
+          "text-sm whitespace-pre-line",
           message.type === "success" ? "text-emerald-500" : "text-rose-500"
         )}>
           {message.text}

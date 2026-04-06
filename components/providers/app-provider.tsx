@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import type { ReactNode } from "react";
 import { createSet, deleteSet, ensureSeedData, loadSnapshot, recordReview, resetSetProgress, updateSet } from "@/lib/db";
 import { getAppStats, getSetStats } from "@/lib/study";
@@ -12,6 +12,7 @@ type AppContextValue = {
   reviews: ReviewLog[];
   progressByCard: Record<string, CardProgress>;
   appStats: AppStats;
+  error: Error | null;
   refresh: () => Promise<void>;
   getSet: (setId: string) => StudySet | undefined;
   getSetStatsById: (setId: string) => SetStats | null;
@@ -38,27 +39,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sets, setSets] = useState<StudySet[]>([]);
   const [reviews, setReviews] = useState<ReviewLog[]>([]);
   const [progressByCard, setProgressByCard] = useState<Record<string, CardProgress>>({});
+  const [error, setError] = useState<Error | null>(null);
 
   async function refresh() {
-    const snapshot = await loadSnapshot();
+    try {
+      const snapshot = await loadSnapshot();
 
-    setSets(snapshot.sets);
-    setReviews(snapshot.reviews);
-    setProgressByCard(buildProgressMap(snapshot.progress));
-    setReady(true);
+      setSets(snapshot.sets);
+      setReviews(snapshot.reviews);
+      setProgressByCard(buildProgressMap(snapshot.progress));
+      setReady(true);
+      setError(null);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to load data');
+      console.error('Failed to refresh app state:', error);
+      setError(error);
+      setReady(true); // Позволяем UI показать ошибку
+      throw error;
+    }
   }
 
   useEffect(() => {
     let cancelled = false;
 
     async function bootstrap() {
-      await ensureSeedData();
+      try {
+        await ensureSeedData();
 
-      if (cancelled) {
-        return;
+        if (cancelled) {
+          return;
+        }
+
+        await refresh();
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Bootstrap failed');
+        console.error('Bootstrap error:', error);
+        
+        if (!cancelled) {
+          setError(error);
+          setReady(true); // Позволяем UI показать ошибку
+        }
       }
-
-      await refresh();
     }
 
     void bootstrap();
@@ -68,7 +89,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const appStats = getAppStats(sets, progressByCard, reviews);
+  // Мемоизируем appStats чтобы избежать пересчёта на каждом render
+  const appStats = useMemo(() => {
+    return getAppStats(sets, progressByCard, reviews);
+  }, [sets, progressByCard, reviews]);
 
   const value: AppContextValue = {
     ready,
@@ -76,6 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     reviews,
     progressByCard,
     appStats,
+    error,
     refresh,
     getSet(setId) {
       return sets.find((set) => set.id === setId);
@@ -90,32 +115,72 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return getSetStats(set, progressByCard, reviews);
     },
     async createSetItem(input) {
-      const created = await createSet(input);
-      setSets((previous) => [created, ...previous]);
-      return created;
+      try {
+        const created = await createSet(input);
+        setSets((previous) => [created, ...previous]);
+        setError(null);
+        return created;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to create set');
+        console.error('Create set error:', error);
+        setError(error);
+        throw error;
+      }
     },
     async updateSetItem(setId, input) {
-      const updated = await updateSet(setId, input);
-      await refresh();
-      return updated;
+      try {
+        const updated = await updateSet(setId, input);
+        await refresh();
+        setError(null);
+        return updated;
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to update set');
+        console.error('Update set error:', error);
+        setError(error);
+        throw error;
+      }
     },
     async deleteSetItem(setId) {
-      await deleteSet(setId);
-      await refresh();
+      try {
+        await deleteSet(setId);
+        await refresh();
+        setError(null);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to delete set');
+        console.error('Delete set error:', error);
+        setError(error);
+        throw error;
+      }
     },
     async resetProgressForSet(setId) {
-      await resetSetProgress(setId);
-      await refresh();
+      try {
+        await resetSetProgress(setId);
+        await refresh();
+        setError(null);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to reset progress');
+        console.error('Reset progress error:', error);
+        setError(error);
+        throw error;
+      }
     },
     async recordCardReview(payload) {
-      const result = await recordReview(payload);
+      try {
+        const result = await recordReview(payload);
 
-      setProgressByCard((previous) => ({
-        ...previous,
-        [result.progress.cardId]: result.progress
-      }));
+        setProgressByCard((previous) => ({
+          ...previous,
+          [result.progress.cardId]: result.progress
+        }));
 
-      setReviews((previous) => [result.review, ...previous]);
+        setReviews((previous) => [result.review, ...previous]);
+        setError(null);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to record review');
+        console.error('Record review error:', error);
+        setError(error);
+        throw error;
+      }
     }
   };
 

@@ -1,9 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@/components/icons";
 import { AppShell } from "@/components/app-shell";
-import { StatsOverviewScreen } from "@/features/shared/stats-overview-screen";
+import { LoadingSpinner } from "@/components/loading-spinner";
+
+// Lazy load stats screen to reduce initial bundle size
+const StatsOverviewScreen = dynamic(
+  () => import("@/features/shared/stats-overview-screen").then(mod => ({ default: mod.StatsOverviewScreen })),
+  { loading: () => <LoadingSpinner /> }
+);
 
 export default function StatsPage() {
   return (

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainIcon, HomeIcon, PlusIcon } from "@/components/icons";
+import { BrainIcon, HomeIcon, PlusIcon, BookIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,12 @@ export function BottomNav() {
       active: pathname === "/"
     },
     {
+      href: "/translate",
+      label: "Словарь",
+      icon: BookIcon,
+      active: pathname === "/translate"
+    },
+    {
       href: reviewTarget ? `/sets/${reviewTarget.set.id}/study?mode=learn` : "/",
       label: "Повтор",
       icon: BrainIcon,
@@ -39,7 +45,7 @@ export function BottomNav() {
 
   return (
     <nav className="bottom-safe fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-4 pb-4">
-      <div className="glass-panel grid grid-cols-3 rounded-[28px] p-2">
+      <div className="glass-panel grid grid-cols-4 gap-1 rounded-[28px] p-2">
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -48,7 +54,7 @@ export function BottomNav() {
               key={item.label}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 rounded-3xl px-3 py-3 text-[11px] font-medium transition",
+                "flex flex-col items-center justify-center gap-0.5 rounded-3xl px-2 py-3 text-[10px] font-medium transition",
                 item.active ? "bg-accent text-slate-950" : "text-muted hover:bg-white/5 hover:text-text"
               )}
             >
