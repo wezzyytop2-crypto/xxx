@@ -99,15 +99,6 @@ export function DeckIcon(props: IconProps) {
   );
 }
 
-export function BookIcon(props: IconProps) {
-  return (
-    <BaseIcon {...props}>
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v13H6.5A2.5 2.5 0 0 1 4 12.5v-8A2.5 2.5 0 0 1 6.5 2Z" />
-    </BaseIcon>
-  );
-}
-
 export function CheckIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>

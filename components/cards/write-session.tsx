@@ -27,7 +27,8 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
   }
 
   function checkAnswer() {
-    const correct = isCorrectTranslation(answer, current.translation);
+    // Проверяем румынское слово (вместо перевода)
+    const correct = isCorrectTranslation(answer, current.term);
     setResult(correct ? "write-correct" : "write-wrong");
   }
 
@@ -37,9 +38,9 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-accent">Write</p>
-            <h2 className="mt-2 text-3xl font-semibold text-text">{current.term}</h2>
+            <h2 className="mt-2 text-3xl font-semibold text-text">{current.translation}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Введи перевод вручную. Можно использовать один из вариантов через запятую.
+              Напиши румынское слово. Можно использовать один из вариантов через запятую.
             </p>
           </div>
           <button
@@ -53,7 +54,7 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
 
         <div className="mt-6 space-y-3">
           <label className="block text-sm text-muted" htmlFor="answer">
-            Твой перевод
+            Введи румынское слово
           </label>
           <input
             id="answer"
@@ -61,7 +62,7 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
             onChange={(event) => setAnswer(event.target.value)}
             autoComplete="off"
             autoCapitalize="off"
-            placeholder="Напиши перевод..."
+            placeholder="Напиши слово..."
             className="w-full rounded-[24px] border border-line bg-black/10 px-4 py-4 text-base text-text outline-none transition placeholder:text-muted/80 focus:border-accent/40"
           />
         </div>
@@ -75,7 +76,7 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
             }`}
           >
             <p className="text-sm font-semibold">{result === "write-correct" ? "Верно" : "Нужно закрепить"}</p>
-            <p className="mt-2 text-sm leading-6 text-text">Правильный вариант: {current.translation}</p>
+            <p className="mt-2 text-sm leading-6 text-text">Правильный вариант: {current.term}</p>
             {current.example ? <p className="mt-2 text-sm leading-6 text-muted">{current.example}</p> : null}
             {current.note ? <p className="mt-2 text-sm leading-6 text-muted">{current.note}</p> : null}
           </div>

@@ -92,7 +92,9 @@ export function translate(
   // Добавляем в кеш с ограничением размера
   if (searchCache.size >= CACHE_MAX_SIZE) {
     const firstKey = searchCache.keys().next().value;
-    searchCache.delete(firstKey);
+    if (firstKey !== undefined) {
+      searchCache.delete(firstKey);
+    }
   }
   searchCache.set(cacheKey, result);
 

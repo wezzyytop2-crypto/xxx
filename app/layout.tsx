@@ -4,7 +4,7 @@ import "./globals.css";
 import { AppShell } from "@/components/app-shell";
 import { AppProvider } from "@/components/providers/app-provider";
 import { PwaProvider } from "@/components/providers/pwa-provider";
-import { ErrorBoundary, ErrorScreenWithDataReset } from "@/components/error-boundary";
+import { ErrorBoundaryProvider } from "@/components/providers/error-boundary-provider";
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME || "LIMBI";
 
@@ -51,21 +51,13 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body>
-        <ErrorBoundary
-          fallback={(error, reset) => (
-            <ErrorScreenWithDataReset error={error} onReset={reset} />
-          )}
-          onError={(error, errorInfo) => {
-            console.error('Critical app error:', error, errorInfo);
-            // Здесь можно отправить ошибку на сервер логирования
-          }}
-        >
+        <ErrorBoundaryProvider>
           <AppProvider>
             <PwaProvider>
               <AppShell>{children}</AppShell>
             </PwaProvider>
           </AppProvider>
-        </ErrorBoundary>
+        </ErrorBoundaryProvider>
       </body>
     </html>
   );
