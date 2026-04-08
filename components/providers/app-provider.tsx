@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import type { ReactNode } from "react";
 import { createSet, deleteSet, ensureSeedData, loadSnapshot, recordReview, resetSetProgress, updateSet } from "@/lib/db";
 import { getAppStats, getSetStats } from "@/lib/study";
-import type { AppStats, CardProgress, ReviewLog, ReviewResult, SaveSetInput, SetStats, StudyMode, StudySet } from "@/lib/types";
+import type { AppStats, AuthUserId, CardProgress, ReviewLog, ReviewResult, SaveSetInput, SetStats, StudyMode, StudySet } from "@/lib/types";
 
 type AppContextValue = {
   ready: boolean;
@@ -34,7 +34,7 @@ function buildProgressMap(progress: CardProgress[]) {
   return Object.fromEntries(progress.map((item) => [item.cardId, item]));
 }
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children, userId }: { children: ReactNode; userId: AuthUserId }) {
   const [ready, setReady] = useState(false);
   const [sets, setSets] = useState<StudySet[]>([]);
   const [reviews, setReviews] = useState<ReviewLog[]>([]);
@@ -43,7 +43,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function refresh() {
     try {
-      const snapshot = await loadSnapshot();
+      const snapshot = await loadSnapshot(userId);
 
       setSets(snapshot.sets);
       setReviews(snapshot.reviews);
@@ -64,7 +64,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     async function bootstrap() {
       try {
-        await ensureSeedData();
+        setReady(false);
+        await ensureSeedData(userId);
 
         if (cancelled) {
           return;
@@ -87,7 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [userId]);
 
   // Мемоизируем appStats чтобы избежать пересчёта на каждом render
   const appStats = useMemo(() => {
@@ -116,7 +117,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     async createSetItem(input) {
       try {
-        const created = await createSet(input);
+        const created = await createSet(userId, input);
         setSets((previous) => [created, ...previous]);
         setError(null);
         return created;
@@ -129,7 +130,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     async updateSetItem(setId, input) {
       try {
-        const updated = await updateSet(setId, input);
+        const updated = await updateSet(userId, setId, input);
         await refresh();
         setError(null);
         return updated;
@@ -142,7 +143,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     async deleteSetItem(setId) {
       try {
-        await deleteSet(setId);
+        await deleteSet(userId, setId);
         await refresh();
         setError(null);
       } catch (err) {
@@ -154,7 +155,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     async resetProgressForSet(setId) {
       try {
-        await resetSetProgress(setId);
+        await resetSetProgress(userId, setId);
         await refresh();
         setError(null);
       } catch (err) {
@@ -166,7 +167,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     async recordCardReview(payload) {
       try {
-        const result = await recordReview(payload);
+        const result = await recordReview(userId, payload);
 
         setProgressByCard((previous) => ({
           ...previous,

@@ -136,3 +136,30 @@ export type TranslationResult = {
  * Направление перевода
  */
 export type TranslationDirection = 'ro-ru' | 'ru-ro';
+
+export type AuthUserId = "user1" | "user2";
+
+export type AuthUser = {
+  id: AuthUserId;
+  username: string;
+};
+
+export type AuthSession = {
+  userId: AuthUserId;
+  authenticatedAt: string;
+};
+
+export type LoginCredentials = {
+  username: string;
+  password: string;
+};
+
+export type LoginResult =
+  | {
+      success: true;
+      user: AuthUser;
+    }
+  | {
+      success: false;
+      error: string;
+    };

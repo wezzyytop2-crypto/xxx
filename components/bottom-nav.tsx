@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { BrainIcon, HomeIcon, PlusIcon, BookIcon } from "@/components/icons";
+import { usePathname, useRouter } from "next/navigation";
+import { getAlternativeUserId } from "@/lib/auth";
+import { BookIcon, BrainIcon, HomeIcon, LogOutIcon, PlusIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
+import { useAuthStore } from "@/lib/stores/authStore";
 import { cn } from "@/lib/utils";
 
 export function BottomNav() {
+  const router = useRouter();
   const pathname = usePathname();
   const { sets, getSetStatsById } = useApp();
+  const { user, logout } = useAuthStore();
   const reviewTarget = sets
     .map((set) => ({
       set,
@@ -50,7 +54,7 @@ export function BottomNav() {
 
   return (
     <nav className="bottom-safe fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-4 pb-4">
-      <div className="glass-panel grid grid-cols-4 gap-1 rounded-[30px] p-2 shadow-shell">
+      <div className="glass-panel grid grid-cols-5 gap-1 rounded-[30px] p-2 shadow-shell">
         {items.map((item) => {
           const Icon = item.icon;
           const isReview = item.key === "review";
@@ -78,6 +82,25 @@ export function BottomNav() {
             </Link>
           );
         })}
+
+        <button
+          type="button"
+          onClick={() => {
+            const nextUser = user ? getAlternativeUserId(user.id) : "user1";
+            logout();
+            router.replace(`/login?user=${nextUser}`);
+          }}
+          className="relative flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-[24px] px-2 py-3 text-[11px] font-semibold text-muted transition duration-200 hover:bg-white/5 hover:text-text"
+          aria-label={user ? `Выйти (${user.username})` : "Выйти"}
+        >
+          {user ? (
+            <span className="absolute right-1.5 top-1.5 rounded-full border border-line/80 bg-white/8 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-text">
+              {user.username}
+            </span>
+          ) : null}
+          <LogOutIcon className="h-5 w-5" />
+          <span>Выйти</span>
+        </button>
       </div>
     </nav>
   );
