@@ -1,9 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { RootLayoutClient } from "@/components/providers/root-layout-client";
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME || "LIMBI";
+const manrope = Manrope({
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-sans"
+});
 
 export const metadata: Metadata = {
   title: {
@@ -47,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body>
+      <body className={`${manrope.variable} antialiased`}>
         <RootLayoutClient>
           {children}
         </RootLayoutClient>

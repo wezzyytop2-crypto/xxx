@@ -19,14 +19,17 @@ export function ProgressBar({
 
   return (
     <div className={cn("space-y-1", className)}>
-      <div className="flex h-2 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-white/8">
         <div
-          className={cn("bg-gradient-to-r from-teal-400 to-teal-500 transition-all", animated && "duration-500")}
+          className={cn(
+            "rounded-full bg-gradient-to-r from-accent via-accentStrong to-spot transition-all",
+            animated && "duration-500"
+          )}
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showLabel && (
-        <p className="text-xs text-muted">{formatPercent(percentage)}% завершено</p>
+        <p className="text-xs text-muted">{formatPercent(percentage)} завершено</p>
       )}
     </div>
   );
@@ -45,23 +48,24 @@ export function StatCard({
   trend?: "up" | "down" | "neutral";
   className?: string;
 }) {
+  const trendClassName =
+    trend === "up" ? "text-success" : trend === "down" ? "text-danger" : trend === "neutral" ? "text-warning" : "";
+
+  const trendLabel =
+    trend === "up" ? "Растет" : trend === "down" ? "Снижается" : trend === "neutral" ? "Стабильно" : null;
+
   return (
-    <div className={cn("rounded-[24px] border border-line bg-black/10 p-4", className)}>
-      <p className="text-xs text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-text">
+    <div className={cn("metric-tile space-y-2", className)}>
+      <p className="text-xs uppercase tracking-[0.18em] text-muted">{label}</p>
+      <p className="text-[1.85rem] font-semibold leading-none text-text">
         {value}
         {unit && <span className="text-lg text-muted">{unit}</span>}
       </p>
-      {trend && (
-        <p className={cn(
-          "mt-1 text-xs font-medium",
-          trend === "up" && "text-emerald-500",
-          trend === "down" && "text-rose-500",
-          trend === "neutral" && "text-amber-500"
-        )}>
-          {trend === "up" && "↑ растёт"} {trend === "down" && "↓ снижается"} {trend === "neutral" && "→ стабильно"}
+      {trendLabel ? (
+        <p className={cn("text-xs font-semibold uppercase tracking-[0.14em]", trendClassName)}>
+          {trendLabel}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }

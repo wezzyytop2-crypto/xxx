@@ -5,20 +5,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--color-background)",
-        surface: "var(--color-surface)",
-        panel: "var(--color-panel)",
-        muted: "var(--color-muted)",
-        line: "var(--color-line)",
-        text: "var(--color-text)",
-        accent: "var(--color-accent)",
-        success: "var(--color-success)",
-        danger: "var(--color-danger)",
-        warning: "var(--color-warning)"
+        background: "rgb(var(--color-background-rgb) / <alpha-value>)",
+        surface: "rgb(var(--color-surface-rgb) / <alpha-value>)",
+        surfaceSoft: "var(--color-surface-soft)",
+        panel: "rgb(var(--color-panel-rgb) / <alpha-value>)",
+        muted: "rgb(var(--color-muted-rgb) / <alpha-value>)",
+        line: "rgb(var(--color-line-rgb) / <alpha-value>)",
+        text: "rgb(var(--color-text-rgb) / <alpha-value>)",
+        accent: "rgb(var(--color-accent-rgb) / <alpha-value>)",
+        accentStrong: "rgb(var(--color-accent-strong-rgb) / <alpha-value>)",
+        accentSoft: "var(--color-accent-soft)",
+        spot: "rgb(var(--color-spot-rgb) / <alpha-value>)",
+        spotSoft: "var(--color-spot-soft)",
+        success: "rgb(var(--color-success-rgb) / <alpha-value>)",
+        danger: "rgb(var(--color-danger-rgb) / <alpha-value>)",
+        warning: "rgb(var(--color-warning-rgb) / <alpha-value>)"
       },
       boxShadow: {
-        glow: "0 18px 50px rgba(45, 212, 191, 0.18)",
-        card: "0 18px 48px rgba(2, 6, 23, 0.45)"
+        glow: "0 22px 52px rgba(35, 210, 177, 0.24)",
+        card: "0 22px 58px rgba(2, 6, 23, 0.42)",
+        shell: "0 28px 90px rgba(2, 6, 23, 0.48)"
       },
       borderRadius: {
         "4xl": "2rem"

@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { DownloadIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
-import { DownloadIcon } from "@/components/icons";
 
 export function ExportImport() {
   const { sets, reviews } = useApp();
@@ -26,23 +26,24 @@ export function ExportImport() {
     a.click();
     URL.revokeObjectURL(url);
 
-    setMessage("✅ Резервная копия сохранена!");
+    setMessage("Резервная копия сохранена.");
     setTimeout(() => setMessage(""), 3000);
   }, [sets, reviews]);
 
   return (
     <div className="space-y-3">
       <button
+        type="button"
         onClick={handleExport}
         className={cn(
-          "inline-flex items-center gap-2 rounded-lg border border-line bg-accent/10 px-4 py-2 text-sm font-medium text-accent",
-          "transition hover:bg-accent/20"
+          "primary-action inline-flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold text-slate-950",
+          "transition"
         )}
       >
         <DownloadIcon className="h-4 w-4" />
         Экспортировать данные
       </button>
-      {message && <p className="text-sm text-emerald-500">{message}</p>}
+      {message ? <p className="text-sm text-success">{message}</p> : null}
     </div>
   );
 }

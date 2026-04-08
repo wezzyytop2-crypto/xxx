@@ -1,111 +1,110 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import type { DictionaryEntry } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { useSpeech } from '@/lib/hooks/useSpeech';
+import { useState } from "react";
+import { VolumeIcon } from "@/components/icons";
+import { useSpeech } from "@/lib/hooks/useSpeech";
+import type { DictionaryEntry } from "@/lib/types";
+import { cn, partOfSpeechLabel } from "@/lib/utils";
 
 interface DictionaryCardProps {
   entry: DictionaryEntry;
-  direction: 'ro-ru' | 'ru-ro';
+  direction: "ro-ru" | "ru-ro";
   onSelectWord?: (romanian: string) => void;
 }
 
-/**
- * Компонент для отображения одного слова из словаря
- */
-export function DictionaryCard({
-  entry,
-  direction,
-  onSelectWord
-}: DictionaryCardProps) {
+export function DictionaryCard({ entry, direction, onSelectWord }: DictionaryCardProps) {
   const [showExamples, setShowExamples] = useState(false);
   const { speak, speaking } = useSpeech();
 
-  const sourceWord = direction === 'ro-ru' ? entry.romanian : entry.russian;
-  const targetWord = direction === 'ro-ru' ? entry.russian : entry.romanian;
+  const sourceWord = direction === "ro-ru" ? entry.romanian : entry.russian;
+  const targetWord = direction === "ro-ru" ? entry.russian : entry.romanian;
 
   const handleSpeak = async () => {
     try {
       await speak(entry.romanian);
     } catch (error) {
-      console.error('Speech error:', error);
+      console.error("Speech error:", error);
     }
   };
 
   return (
-    <div className="border border-line rounded-lg p-4 mb-3 bg-panel hover:bg-panel/80 transition">
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <h3 className="text-2xl font-bold text-text">{sourceWord}</h3>
-          {entry.ipa && (
-            <p className="text-muted text-sm font-mono">
-              /{entry.ipa}/
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs font-medium">
-            {capitalize(entry.partOfSpeech)}
-          </span>
-          {entry.frequency && (
-            <span className="px-2 py-1 bg-amber-500/20 text-amber-300 rounded text-xs font-medium">
-              ★ {entry.frequency}/5
+    <article className="glass-panel rounded-[32px] p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-accent/20 bg-accentSoft px-2.5 py-1 text-[11px] font-semibold text-accent">
+              {partOfSpeechLabel(entry.partOfSpeech)}
             </span>
-          )}
+            {entry.frequency ? (
+              <span className="rounded-full border border-spot/20 bg-spotSoft px-2.5 py-1 text-[11px] font-semibold text-spot">
+                Частотность {entry.frequency}/5
+              </span>
+            ) : null}
+          </div>
+
+          <h3 className="mt-4 text-[2rem] font-semibold leading-none text-text">{sourceWord}</h3>
+          {entry.ipa ? <p className="mt-2 text-sm font-mono tracking-wide text-muted">/{entry.ipa}/</p> : null}
         </div>
-      </div>
 
-      {/* Основной перевод */}
-      <div className="bg-indigo-500/10 border border-indigo-500/20 rounded p-3 mb-3">
-        <p className="text-sm text-muted mb-1">Перевод:</p>
-        <p className="text-xl font-semibold text-text">{targetWord}</p>
-      </div>
-
-      {/* Род (если есть) */}
-      {entry.gender && (
-        <p className="text-sm text-muted mb-2">
-          Род: <span className="text-text font-medium">
-            {genderLabel(entry.gender)}
-          </span>
-        </p>
-      )}
-
-      {/* Примеры использования */}
-      {entry.examples && entry.examples.length > 0 && (
-        <div className="mb-3">
+        {direction === "ro-ru" ? (
           <button
-            onClick={() => setShowExamples(!showExamples)}
-            className="text-indigo-400 hover:text-indigo-300 text-sm underline font-medium"
+            type="button"
+            onClick={handleSpeak}
+            disabled={speaking}
+            className="icon-chip h-11 w-11 shrink-0 text-text transition hover:text-accent disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label="Произнести слово"
           >
-            {showExamples ? '▼' : '▶'} Примеры ({entry.examples.length})
+            <VolumeIcon className="h-5 w-5" />
+          </button>
+        ) : null}
+      </div>
+
+      <div className="mt-5 rounded-[26px] border border-accent/18 bg-accentSoft px-4 py-4">
+        <p className="text-xs uppercase tracking-[0.18em] text-muted">Перевод</p>
+        <p className="mt-2 text-2xl font-semibold leading-tight text-text">{targetWord}</p>
+      </div>
+
+      {entry.gender ? (
+        <p className="mt-4 text-sm text-muted">
+          Род: <span className="font-medium text-text">{genderLabel(entry.gender)}</span>
+        </p>
+      ) : null}
+
+      {entry.examples && entry.examples.length > 0 ? (
+        <div className="mt-5">
+          <button
+            type="button"
+            onClick={() => setShowExamples((value) => !value)}
+            className="secondary-action rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-text"
+          >
+            {showExamples ? "Скрыть примеры" : `Показать примеры · ${entry.examples.length}`}
           </button>
 
-          {showExamples && (
-            <div className="mt-2 space-y-2">
-              {entry.examples.map((example, i) => (
-                <div key={i} className="bg-bg-secondary rounded p-2 border border-line">
-                  <p className="italic text-text mb-1">{example.romanian}</p>
-                  <p className="text-muted text-sm">{example.russian}</p>
+          {showExamples ? (
+            <div className="mt-3 space-y-2">
+              {entry.examples.map((example, index) => (
+                <div key={index} className="surface-card rounded-[22px] p-3">
+                  <p className="text-sm italic text-text">{example.romanian}</p>
+                  <p className="mt-1 text-sm text-muted">{example.russian}</p>
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
-      )}
+      ) : null}
 
-      {/* Синонимы */}
-      {entry.synonyms && entry.synonyms.length > 0 && (
-        <div className="mb-3">
-          <p className="text-sm text-muted mb-1">Синонимы:</p>
+      {entry.synonyms && entry.synonyms.length > 0 ? (
+        <div className="mt-5">
+          <p className="mb-2 text-xs uppercase tracking-[0.16em] text-muted">Синонимы</p>
           <div className="flex flex-wrap gap-2">
-            {entry.synonyms.map((synonym, i) => (
+            {entry.synonyms.map((synonym, index) => (
               <button
-                key={i}
+                key={index}
+                type="button"
                 onClick={() => onSelectWord?.(synonym)}
                 className={cn(
-                  'px-3 py-1 rounded-full text-xs font-medium transition',
-                  'bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30'
+                  "rounded-full border border-success/20 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success transition",
+                  "hover:bg-success/15"
                 )}
               >
                 {synonym}
@@ -113,35 +112,29 @@ export function DictionaryCard({
             ))}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Кнопка произнесения */}
-      {direction === 'ro-ru' && (
+      {direction === "ro-ru" ? (
         <button
+          type="button"
           onClick={handleSpeak}
           disabled={speaking}
-          className={cn(
-            'w-full py-2 px-3 rounded-lg font-medium transition text-sm mt-3',
-            'bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 border border-sky-500/30',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
-          )}
+          className="primary-action mt-5 inline-flex w-full items-center justify-center gap-2 rounded-[26px] px-4 py-3.5 text-sm font-semibold text-slate-950 disabled:opacity-50"
         >
-          {speaking ? '🔊 Воспроизведение...' : '🔊 Произнесение'}
+          <VolumeIcon className="h-4 w-4" />
+          {speaking ? "Воспроизведение..." : "Произнести"}
         </button>
-      )}
-    </div>
+      ) : null}
+    </article>
   );
 }
 
-function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function genderLabel(gender: 'm' | 'f' | 'n'): string {
+function genderLabel(gender: "m" | "f" | "n"): string {
   const labels = {
-    m: 'Мужской',
-    f: 'Женский',
-    n: 'Средний'
+    m: "Мужской",
+    f: "Женский",
+    n: "Средний"
   };
+
   return labels[gender];
 }

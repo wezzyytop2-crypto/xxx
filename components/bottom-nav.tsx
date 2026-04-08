@@ -15,27 +15,32 @@ export function BottomNav() {
       stats: getSetStatsById(set.id)
     }))
     .sort((left, right) => (right.stats?.due ?? 0) - (left.stats?.due ?? 0))[0];
+  const reviewCount = reviewTarget?.stats?.due ?? 0;
 
   const items = [
     {
+      key: "home",
       href: "/",
       label: "Главная",
       icon: HomeIcon,
       active: pathname === "/"
     },
     {
+      key: "dictionary",
       href: "/translate",
       label: "Словарь",
       icon: BookIcon,
       active: pathname === "/translate"
     },
     {
+      key: "review",
       href: reviewTarget ? `/sets/${reviewTarget.set.id}/study?mode=learn` : "/",
       label: "Повтор",
       icon: BrainIcon,
       active: pathname.includes("/study")
     },
     {
+      key: "new",
       href: "/sets/new",
       label: "Новый",
       icon: PlusIcon,
@@ -45,20 +50,30 @@ export function BottomNav() {
 
   return (
     <nav className="bottom-safe fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-4 pb-4">
-      <div className="glass-panel grid grid-cols-4 gap-1 rounded-[28px] p-2">
+      <div className="glass-panel grid grid-cols-4 gap-1 rounded-[30px] p-2 shadow-shell">
         {items.map((item) => {
           const Icon = item.icon;
+          const isReview = item.key === "review";
 
           return (
             <Link
               key={item.label}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 rounded-3xl px-2 py-3 text-[10px] font-medium transition",
-                item.active ? "bg-accent text-slate-950" : "text-muted hover:bg-white/5 hover:text-text"
+                "relative flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-[24px] px-2 py-3 text-[11px] font-semibold transition duration-200",
+                isReview
+                  ? "primary-action text-slate-950"
+                  : item.active
+                    ? "secondary-action text-text"
+                    : "text-muted hover:bg-white/5 hover:text-text"
               )}
             >
-              <Icon className="h-5 w-5" />
+              {isReview && reviewCount > 0 ? (
+                <span className="absolute right-2 top-2 rounded-full bg-slate-950/10 px-1.5 py-0.5 text-[10px] font-bold text-slate-950">
+                  {reviewCount}
+                </span>
+              ) : null}
+              <Icon className={cn("h-5 w-5", item.active && !isReview && "text-accent")} />
               <span>{item.label}</span>
             </Link>
           );

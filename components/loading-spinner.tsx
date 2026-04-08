@@ -7,13 +7,10 @@ import { cn } from '@/lib/utils';
  */
 export function LoadingSpinner({ className }: { className?: string }) {
   return (
-    <div className={cn(
-      'flex items-center justify-center p-8',
-      className
-    )}>
+    <div className={cn("flex items-center justify-center p-8", className)}>
       <div className="space-y-4 text-center">
-        <div className="inline-flex">
-          <div className="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="inline-flex rounded-full border border-line/80 bg-white/5 p-4">
+          <div className="h-8 w-8 rounded-full border-4 border-accent/15 border-t-accent animate-spin" />
         </div>
         <p className="text-muted text-sm">Загрузка...</p>
       </div>

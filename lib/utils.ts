@@ -33,33 +33,33 @@ export const toneStyles: Record<
   }
 > = {
   teal: {
-    hero: "from-teal-300/18 via-teal-400/8 to-transparent",
-    pill: "bg-teal-400/12 text-teal-200 border-teal-300/20",
+    hero: "from-teal-300/26 via-teal-400/10 to-transparent",
+    pill: "bg-teal-400/12 text-teal-100 border-teal-300/24",
     dot: "bg-teal-300"
   },
   amber: {
-    hero: "from-amber-300/18 via-amber-400/8 to-transparent",
-    pill: "bg-amber-400/12 text-amber-200 border-amber-300/20",
+    hero: "from-amber-300/26 via-amber-400/10 to-transparent",
+    pill: "bg-amber-400/12 text-amber-100 border-amber-300/24",
     dot: "bg-amber-300"
   },
   rose: {
-    hero: "from-rose-300/18 via-rose-400/8 to-transparent",
-    pill: "bg-rose-400/12 text-rose-200 border-rose-300/20",
+    hero: "from-rose-300/26 via-rose-400/10 to-transparent",
+    pill: "bg-rose-400/12 text-rose-100 border-rose-300/24",
     dot: "bg-rose-300"
   },
   indigo: {
-    hero: "from-indigo-300/18 via-indigo-400/8 to-transparent",
-    pill: "bg-indigo-400/12 text-indigo-200 border-indigo-300/20",
+    hero: "from-indigo-300/26 via-indigo-400/10 to-transparent",
+    pill: "bg-indigo-400/12 text-indigo-100 border-indigo-300/24",
     dot: "bg-indigo-300"
   },
   emerald: {
-    hero: "from-emerald-300/18 via-emerald-400/8 to-transparent",
-    pill: "bg-emerald-400/12 text-emerald-200 border-emerald-300/20",
+    hero: "from-emerald-300/26 via-emerald-400/10 to-transparent",
+    pill: "bg-emerald-400/12 text-emerald-100 border-emerald-300/24",
     dot: "bg-emerald-300"
   },
   sky: {
-    hero: "from-sky-300/18 via-sky-400/8 to-transparent",
-    pill: "bg-sky-400/12 text-sky-200 border-sky-300/20",
+    hero: "from-sky-300/26 via-sky-400/10 to-transparent",
+    pill: "bg-sky-400/12 text-sky-100 border-sky-300/24",
     dot: "bg-sky-300"
   }
 };
