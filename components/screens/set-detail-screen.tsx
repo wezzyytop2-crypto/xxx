@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, BookIcon, BrainIcon, ClockIcon, EditIcon, PenIcon, RefreshIcon, TrashIcon, VolumeIcon } from "@/components/icons";
+import {
+  ArrowLeftIcon,
+  BookIcon,
+  BrainIcon,
+  ClockIcon,
+  EditIcon,
+  PenIcon,
+  RefreshIcon,
+  StarIcon,
+  TrashIcon,
+  VolumeIcon
+} from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { speakRomanian } from "@/lib/speech";
 import { formatDateTime, formatPercent, labelForReviewResult, partOfSpeechLabel, toneStyles } from "@/lib/utils";
@@ -90,27 +101,34 @@ export function SetDetailScreen({ setId }: { setId: string }) {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-2 gap-3">
+        <Link
+          href={`/sets/${set.id}/study?mode=focus`}
+          className="glass-panel flex min-h-28 flex-col items-center justify-center gap-2 rounded-[28px] p-4 text-center"
+        >
+          <StarIcon className="h-6 w-6 text-spot" />
+          <span className="text-sm font-semibold text-text">Фокус</span>
+        </Link>
         <Link
           href={`/sets/${set.id}/study?mode=flashcards`}
           className="glass-panel flex min-h-28 flex-col items-center justify-center gap-2 rounded-[28px] p-4 text-center"
         >
           <BookIcon className="h-6 w-6 text-accent" />
-          <span className="text-sm font-semibold text-text">Flashcards</span>
+          <span className="text-sm font-semibold text-text">Карточки</span>
         </Link>
         <Link
           href={`/sets/${set.id}/study?mode=learn`}
           className="glass-panel flex min-h-28 flex-col items-center justify-center gap-2 rounded-[28px] p-4 text-center"
         >
           <BrainIcon className="h-6 w-6 text-accent" />
-          <span className="text-sm font-semibold text-text">Learn</span>
+          <span className="text-sm font-semibold text-text">Учить</span>
         </Link>
         <Link
           href={`/sets/${set.id}/study?mode=write`}
           className="glass-panel flex min-h-28 flex-col items-center justify-center gap-2 rounded-[28px] p-4 text-center"
         >
           <PenIcon className="h-6 w-6 text-accent" />
-          <span className="text-sm font-semibold text-text">Write</span>
+          <span className="text-sm font-semibold text-text">Письмо</span>
         </Link>
       </section>
 

@@ -34,10 +34,10 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
 
   return (
     <div className="space-y-4">
-      <div className="glass-panel rounded-[32px] p-5">
+      <div className="glass-panel rounded-[32px] p-5 shadow-card">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-accent">Write</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-accent">Письмо</p>
             <h2 className="mt-2 text-3xl font-semibold text-text">{current.translation}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               Напиши румынское слово. Можно использовать один из вариантов через запятую.
@@ -62,6 +62,7 @@ export function WriteSession({ cards, busy, onAdvance }: WriteSessionProps) {
             onChange={(event) => setAnswer(event.target.value)}
             autoComplete="off"
             autoCapitalize="off"
+            autoFocus
             placeholder="Напиши слово..."
             className="w-full rounded-[24px] border border-line bg-black/10 px-4 py-4 text-base text-text outline-none transition placeholder:text-muted/80 focus:border-accent/40"
           />

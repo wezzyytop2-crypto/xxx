@@ -38,7 +38,7 @@ export function BottomNav() {
     },
     {
       key: "review",
-      href: reviewTarget ? `/sets/${reviewTarget.set.id}/study?mode=learn` : "/",
+      href: reviewTarget ? `/sets/${reviewTarget.set.id}/study?mode=focus` : "/",
       label: "Повтор",
       icon: BrainIcon,
       active: pathname.includes("/study")

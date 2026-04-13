@@ -1,12 +1,19 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  const hideNav = pathname.includes("/study") || pathname.includes("/edit") || pathname === "/sets/new";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const hideNav = !mounted || pathname.includes("/study") || pathname.includes("/edit") || pathname === "/sets/new";
 
   return (
     <div className="min-h-dvh bg-transparent">

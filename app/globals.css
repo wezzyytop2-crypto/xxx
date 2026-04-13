@@ -107,6 +107,18 @@ textarea {
   backdrop-filter: blur(22px);
 }
 
+.hero-panel {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(106, 240, 215, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(255, 178, 127, 0.16), transparent 45%),
+    linear-gradient(180deg, rgba(20, 34, 52, 0.92) 0%, rgba(10, 18, 32, 0.88) 100%);
+  border: 1px solid rgba(106, 240, 215, 0.14);
+  box-shadow:
+    0 30px 90px rgba(2, 6, 23, 0.52),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(26px);
+}
+
 .surface-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.02) 100%);
   border: 1px solid rgba(156, 174, 196, 0.12);

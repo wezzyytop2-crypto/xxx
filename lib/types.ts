@@ -14,7 +14,7 @@ export type PartOfSpeech =
 
 export type SetTone = "teal" | "amber" | "rose" | "indigo" | "emerald" | "sky";
 
-export type StudyMode = "flashcards" | "learn" | "write";
+export type StudyMode = "focus" | "flashcards" | "learn" | "write";
 
 export type ReviewResult = "known" | "unknown" | "write-correct" | "write-wrong";
 

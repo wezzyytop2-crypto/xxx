@@ -12,7 +12,7 @@ export default function StudyPage({
     mode?: string;
   };
 }) {
-  const mode = isStudyMode(searchParams.mode) ? searchParams.mode : "flashcards";
+  const mode = isStudyMode(searchParams.mode) ? searchParams.mode : "focus";
 
   return <StudyScreen setId={params.setId} initialMode={mode} />;
 }

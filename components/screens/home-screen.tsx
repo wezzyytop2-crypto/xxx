@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  BookIcon,
   BrainIcon,
   ChartIcon,
   ChevronRightIcon,
@@ -10,6 +11,7 @@ import {
   DeckIcon,
   OfflineIcon,
   PlusIcon,
+  PenIcon,
   SignalIcon,
   StarIcon
 } from "@/components/icons";
@@ -51,7 +53,14 @@ export function HomeScreen() {
       set,
       stats: getSetStatsById(set.id)
     }))
-    .sort((left, right) => (right.stats?.due ?? 0) - (left.stats?.due ?? 0))[0];
+    .sort((left, right) => {
+      const dueDiff = (right.stats?.due ?? 0) - (left.stats?.due ?? 0);
+      if (dueDiff !== 0) {
+        return dueDiff;
+      }
+      return (right.stats?.difficult ?? 0) - (left.stats?.difficult ?? 0);
+    })[0];
+  const totalDifficult = sets.reduce((sum, set) => sum + (getSetStatsById(set.id)?.difficult ?? 0), 0);
   const normalizedQuery = normalizeAnswer(query);
   const visibleSets =
     normalizedQuery.length === 0
@@ -67,13 +76,15 @@ export function HomeScreen() {
 
           return normalizeAnswer(searchable).includes(normalizedQuery);
         });
+  const focusLink = focusSet ? `/sets/${focusSet.set.id}/study?mode=focus` : "/translate";
+  const writeLink = focusSet ? `/sets/${focusSet.set.id}/study?mode=write` : "/translate";
 
   const heroTitle =
-    appStats.dueCards > 0 ? `${appStats.dueCards} карточек готовы к повторению` : "Сегодня можно идти в комфортном темпе";
+    appStats.dueCards > 0 ? `Сегодня ${appStats.dueCards} карточек ждут повторения` : "Сегодня можно учить в легком темпе";
   const heroText =
     appStats.dueCards > 0
-      ? `${appStats.reviewsToday} проверок уже позади. Прогресс хранится локально и не теряется между сессиями.`
-      : "Очередь на повтор чистая. Можно открыть словарь, собрать новый набор или пройти легкую сессию для закрепления.";
+      ? `У тебя уже ${appStats.reviewsToday} проверок сегодня. Давай пройдём короткую фокус-сессию и закроем хвосты.`
+      : "Очередь чистая. Можно пройти короткий умный повтор, заглянуть в словарь или создать новый набор.";
 
   return (
     <div className="screen-pad flex flex-col gap-6 pb-8">
@@ -105,34 +116,56 @@ export function HomeScreen() {
         <span className="pill-tag text-xs">Local-first · IndexedDB</span>
       </div>
 
-      <section className="glass-panel relative overflow-hidden rounded-[36px] p-6">
+      <section className="hero-panel relative overflow-hidden rounded-[36px] p-6">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-spot/10 blur-3xl" />
 
         <div className="relative space-y-6">
           <div className="flex items-start justify-between gap-4">
-            <div className="max-w-[15rem]">
-              <p className="text-[0.7rem] font-bold uppercase tracking-[0.28em] text-spot">Сегодня в фокусе</p>
+            <div className="max-w-[17rem]">
+              <p className="text-[0.7rem] font-bold uppercase tracking-[0.28em] text-spot">Сегодня</p>
               <h2 className="mt-3 text-[2rem] font-semibold leading-tight text-balance text-text">{heroTitle}</h2>
               <p className="mt-3 text-sm leading-6 text-muted">{heroText}</p>
             </div>
 
-            <div className="accent-ring flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-[28px] border border-accent/25 bg-accentSoft text-center">
+            <div className="accent-ring animate-float flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-[28px] border border-accent/25 bg-accentSoft text-center">
               <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-950/70">Темп</span>
               <span className="mt-2 text-3xl font-semibold leading-none text-slate-950">{formatPercent(completion)}</span>
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href={focusLink}
+              className="primary-action col-span-2 inline-flex items-center justify-between rounded-[28px] px-5 py-4 text-sm font-semibold text-slate-950"
+            >
+              <span className="inline-flex items-center gap-3">
+                <span className="icon-chip h-10 w-10 border-none bg-slate-950/10 text-slate-950">
+                  <StarIcon className="h-5 w-5" />
+                </span>
+                Умный повтор
+              </span>
+              <ChevronRightIcon className="h-5 w-5" />
+            </Link>
+            <Link
+              href={writeLink}
+              className="secondary-action inline-flex items-center justify-center gap-2 rounded-[26px] px-4 py-4 text-sm font-semibold text-text"
+            >
+              <PenIcon className="h-4 w-4 text-accent" />
+              Письмо 5-7 мин
+            </Link>
+            <Link
+              href="/translate"
+              className="secondary-action inline-flex items-center justify-center gap-2 rounded-[26px] px-4 py-4 text-sm font-semibold text-text"
+            >
+              <BookIcon className="h-4 w-4 text-accent" />
+              Словарь
+            </Link>
+          </div>
+
           <ProgressBar value={appStats.masteredCards} max={Math.max(appStats.totalCards, 1)} showLabel={false} />
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="metric-tile">
-              <div className="icon-chip h-10 w-10 text-text">
-                <DeckIcon className="h-4 w-4" />
-              </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted">Наборы</p>
-              <p className="mt-1 text-2xl font-semibold text-text">{appStats.totalSets}</p>
-            </div>
+          <div className="grid grid-cols-3 gap-3">
             <div className="metric-tile">
               <div className="icon-chip h-10 w-10 text-text">
                 <ClockIcon className="h-4 w-4" />
@@ -142,17 +175,17 @@ export function HomeScreen() {
             </div>
             <div className="metric-tile">
               <div className="icon-chip h-10 w-10 text-text">
-                <ChartIcon className="h-4 w-4" />
+                <BrainIcon className="h-4 w-4" />
               </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted">Карточки</p>
-              <p className="mt-1 text-2xl font-semibold text-text">{appStats.totalCards}</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted">Слабые</p>
+              <p className="mt-1 text-2xl font-semibold text-text">{totalDifficult}</p>
             </div>
             <div className="metric-tile">
               <div className="icon-chip h-10 w-10 text-text">
-                <StarIcon className="h-4 w-4" />
+                <ChartIcon className="h-4 w-4" />
               </div>
-              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted">Уровень</p>
-              <p className="mt-1 text-2xl font-semibold text-text">{appStats.level}</p>
+              <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted">Сегодня</p>
+              <p className="mt-1 text-2xl font-semibold text-text">{appStats.reviewsToday}</p>
             </div>
           </div>
 
@@ -162,10 +195,11 @@ export function HomeScreen() {
               className="surface-card flex items-center justify-between gap-4 rounded-[28px] p-4 transition hover:bg-white/5"
             >
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted">Лучший следующий шаг</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted">Лучший следующий набор</p>
                 <p className="mt-2 text-lg font-semibold text-text">{focusSet.set.title}</p>
                 <p className="mt-1 text-sm text-muted">
-                  {focusSet.stats.due} на повтор · последний подход {relativeTimeFromNow(focusSet.stats.lastReviewedAt)}
+                  {focusSet.stats.due} на повтор · слабые {focusSet.stats.difficult} · последний подход{" "}
+                  {relativeTimeFromNow(focusSet.stats.lastReviewedAt)}
                 </p>
               </div>
               <span className="icon-chip h-11 w-11 text-muted">
@@ -173,49 +207,31 @@ export function HomeScreen() {
               </span>
             </Link>
           ) : null}
-
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              href={focusSet ? `/sets/${focusSet.set.id}/study?mode=learn` : "/translate"}
-              className="primary-action col-span-2 inline-flex items-center justify-between rounded-[28px] px-5 py-4 text-sm font-semibold text-slate-950"
-            >
-              <span className="inline-flex items-center gap-3">
-                <span className="icon-chip h-10 w-10 border-none bg-slate-950/10 text-slate-950">
-                  <BrainIcon className="h-5 w-5" />
-                </span>
-                Учить сейчас
-              </span>
-              <ChevronRightIcon className="h-5 w-5" />
-            </Link>
-            <Link
-              href="/stats"
-              className="secondary-action inline-flex items-center justify-center gap-2 rounded-[26px] px-4 py-4 text-sm font-semibold text-text"
-            >
-              <ChartIcon className="h-4 w-4 text-accent" />
-              Статистика
-            </Link>
-            <Link
-              href="/sets/new"
-              className="secondary-action inline-flex items-center justify-center gap-2 rounded-[26px] px-4 py-4 text-sm font-semibold text-text"
-            >
-              <PlusIcon className="h-4 w-4 text-accent" />
-              Новый набор
-            </Link>
-          </div>
         </div>
       </section>
 
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="section-kicker">Library</p>
+            <p className="section-kicker">Коллекция</p>
             <h2 className="mt-2 text-2xl font-semibold text-text">Наборы</h2>
             <p className="mt-2 max-w-xs text-sm leading-6 text-muted">
               {BUILT_IN_LIBRARY_STATS.categories} категорий и около {BUILT_IN_LIBRARY_STATS.cardsPerCategory} карточек в каждом
               встроенном наборе.
             </p>
           </div>
-          <span className="rounded-full border border-line/70 bg-white/5 px-3 py-2 text-xs text-muted">{visibleSets.length} найдено</span>
+          <div className="flex flex-col items-end gap-2">
+            <span className="rounded-full border border-line/70 bg-white/5 px-3 py-2 text-xs text-muted">
+              {visibleSets.length} найдено
+            </span>
+            <Link
+              href="/sets/new"
+              className="inline-flex items-center gap-2 rounded-full border border-line/70 bg-white/5 px-3 py-2 text-xs font-semibold text-text transition hover:border-accent/40"
+            >
+              <PlusIcon className="h-3.5 w-3.5 text-accent" />
+              Новый набор
+            </Link>
+          </div>
         </div>
 
         <div className="glass-panel rounded-[32px] p-4">

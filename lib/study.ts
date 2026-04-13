@@ -2,7 +2,7 @@ import type { AppStats, CardProgress, CardRecord, ReviewLog, ReviewResult, SetSt
 import { countReviewsToday, isToday } from "@/lib/utils";
 
 export function isStudyMode(value: string | undefined): value is StudyMode {
-  return value === "flashcards" || value === "learn" || value === "write";
+  return value === "focus" || value === "flashcards" || value === "learn" || value === "write";
 }
 
 export function isCorrectResult(result: ReviewResult) {
@@ -81,14 +81,54 @@ function priorityForCard(card: CardRecord, progressMap: Record<string, CardProgr
   return dueWeight + unresolved + learnBias + writeBias + missed * 14 - known * 4 - streak * 3 - interval;
 }
 
+function isWeakProgress(progress: CardProgress | undefined) {
+  if (!progress) {
+    return true;
+  }
+
+  return (
+    progress.unknownCount > progress.knownCount ||
+    progress.lastResult === "unknown" ||
+    progress.lastResult === "write-wrong"
+  );
+}
+
+function focusScore(card: CardRecord, progressMap: Record<string, CardProgress>) {
+  const progress = progressMap[card.id];
+  const due = isCardDue(progress);
+  const weak = isWeakProgress(progress);
+  const recentWrong = progress?.lastResult === "unknown" || progress?.lastResult === "write-wrong";
+  const newCard = !progress;
+  const streak = progress?.streak ?? 0;
+  const interval = progress?.intervalDays ?? 0;
+  const masteredPenalty = progress?.mastered ? 18 : 0;
+
+  return (
+    10 +
+    (due ? 55 : 0) +
+    (weak ? 36 : 0) +
+    (recentWrong ? 18 : 0) +
+    (newCard ? 22 : 0) -
+    masteredPenalty -
+    streak * 3 -
+    interval
+  );
+}
+
 export function buildStudyQueue(cards: CardRecord[], progressMap: Record<string, CardProgress>, mode: StudyMode) {
   const scored = cards
     .map((card) => ({
       card,
       progress: progressMap[card.id],
-      score: priorityForCard(card, progressMap, mode)
+      score: mode === "focus" ? focusScore(card, progressMap) : priorityForCard(card, progressMap, mode)
     }))
     .sort((left, right) => right.score - left.score);
+
+  if (mode === "focus") {
+    const focused = scored.filter((item) => isCardDue(item.progress) || isWeakProgress(item.progress));
+    const pool = focused.length >= 4 ? focused : scored;
+    return pool.map((item) => item.card);
+  }
 
   if (mode === "learn") {
     const focused = scored.filter(
@@ -161,7 +201,7 @@ export function repeatCardLater(queue: CardRecord[], card: CardRecord, result: R
     return [...rest, card];
   }
 
-  if (mode === "learn" && !isCorrectResult(result)) {
+  if ((mode === "learn" || mode === "focus") && !isCorrectResult(result)) {
     const insertAt = Math.min(2, rest.length);
     const prefix = rest.slice(0, insertAt);
     const suffix = rest.slice(insertAt);

@@ -20,6 +20,8 @@ export function SwipeStack({ cards, busy, onResult }: SwipeStackProps) {
   const movedRef = useRef(false);
   const [dragX, setDragX] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const positive = Math.min(Math.max(dragX / 140, 0), 1);
+  const negative = Math.min(Math.max(-dragX / 140, 0), 1);
 
   useEffect(() => {
     setFlipped(false);
@@ -87,7 +89,7 @@ export function SwipeStack({ cards, busy, onResult }: SwipeStackProps) {
   return (
     <div className="space-y-4">
       <div className="rounded-[28px] border border-line bg-panel/70 px-4 py-3 text-center text-xs leading-5 text-muted">
-        Свайп вправо, если знаешь слово. Влево, если нужен повтор. Тап по карточке переворачивает её.
+        Свайп вправо, если знаешь слово. Влево, если нужен повтор. Тап по карточке показывает перевод.
       </div>
 
       <div className="relative mx-auto h-[430px] w-full perspective">
@@ -97,7 +99,7 @@ export function SwipeStack({ cards, busy, onResult }: SwipeStackProps) {
           .map((card, index) => (
             <div
               key={card.id}
-              className="glass-panel absolute inset-x-4 top-0 rounded-[32px]"
+              className="glass-panel absolute inset-x-4 top-0 rounded-[32px] shadow-card"
               style={{
                 height: "100%",
                 transform: `translateY(${14 + index * 12}px) scale(${0.96 - index * 0.03})`,
@@ -120,7 +122,21 @@ export function SwipeStack({ cards, busy, onResult }: SwipeStackProps) {
               transitionDuration: busy ? "420ms" : "240ms"
             }}
           >
-            <div className="glass-panel absolute inset-0 flex flex-col justify-between rounded-[32px] p-6 backface-hidden">
+            <div className="glass-panel absolute inset-0 flex flex-col justify-between rounded-[32px] p-6 shadow-card backface-hidden">
+              <div
+                className="pointer-events-none absolute inset-0 rounded-[32px] transition-opacity"
+                style={{
+                  background: "linear-gradient(140deg, rgba(94, 230, 168, 0.22), transparent 60%)",
+                  opacity: positive
+                }}
+              />
+              <div
+                className="pointer-events-none absolute inset-0 rounded-[32px] transition-opacity"
+                style={{
+                  background: "linear-gradient(220deg, rgba(255, 130, 152, 0.22), transparent 60%)",
+                  opacity: negative
+                }}
+              />
               <div className="flex items-start justify-between gap-3">
                 <span className="rounded-full border border-line bg-black/10 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-accent">
                   Română
@@ -146,7 +162,7 @@ export function SwipeStack({ cards, busy, onResult }: SwipeStackProps) {
             </div>
 
             <div
-              className="glass-panel absolute inset-0 flex flex-col justify-between rounded-[32px] p-6 backface-hidden"
+              className="glass-panel absolute inset-0 flex flex-col justify-between rounded-[32px] p-6 shadow-card backface-hidden"
               style={{ transform: "rotateY(180deg)" }}
             >
               <div className="flex items-start justify-between gap-3">
