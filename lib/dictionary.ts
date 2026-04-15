@@ -109,6 +109,83 @@ const SET_BLUEPRINTS: StudySetBlueprint[] = [
     description: "Дополнительные базовые слова из встроенного переводчика, чтобы запас рос быстрее.",
     color: "indigo",
     familyIds: ["supplemental-core"]
+  },
+  {
+    id: "communication",
+    title: "Общение",
+    description: "Фразы и слова для разговора, вопросов и общения.",
+    color: "rose",
+    familyIds: ["communication"]
+  },
+  {
+    id: "everyday-life",
+    title: "Повседневная жизнь",
+    description: "Частые действия и бытовые рутины, полезные в доме и на улице.",
+    color: "indigo",
+    familyIds: ["everyday-life"]
+  },
+  {
+    id: "clothing",
+    title: "Одежда",
+    description: "Описания одежды, цветов и моды для каждого дня.",
+    color: "sky",
+    familyIds: ["clothing"]
+  },
+  {
+    id: "furniture",
+    title: "Мебель",
+    description: "Вещи для дома, мебели, комнат и интерьера.",
+    color: "emerald",
+    familyIds: ["furniture"]
+  },
+  {
+    id: "shopping-life",
+    title: "Покупки",
+    description: "Лексика для магазинов, цены, оплат и товаров.",
+    color: "amber",
+    familyIds: ["shopping-life"]
+  },
+  {
+    id: "travel-city-large",
+    title: "Путешествия и город",
+    description: "Транспорт, поездки, направления и городская навигация.",
+    color: "sky",
+    familyIds: ["travel-city-large"]
+  },
+  {
+    id: "health-body-large",
+    title: "Здоровье и тело",
+    description: "Слова о частях тела, самочувствии и медицине.",
+    color: "teal",
+    familyIds: ["health-body-large"]
+  },
+  {
+    id: "work-study-large",
+    title: "Работа и учеба",
+    description: "Слова и фразы для офиса, учебы и деловых задач.",
+    color: "indigo",
+    familyIds: ["work-study-large"]
+  },
+  {
+    id: "nature-weather-large",
+    title: "Природа и погода",
+    description: "Природные явления, погода и окружающий мир.",
+    color: "sky",
+    familyIds: ["nature-weather-large"]
+  },
+  {
+    id: "feelings-large",
+    title: "Чувства и эмоции",
+    description: "Слова о настроении, эмоциях и внутреннем состоянии.",
+    color: "rose",
+    familyIds: ["feelings-large"]
+  },
+  {
+    id: "people-relations-large",
+    title: "Люди и отношения",
+    description: "Слова про семью, друзей, коллег и отношения.",
+    color: "emerald",
+    familyIds: ["people-relations-large"]
   }
 ];
 
@@ -169,6 +246,656 @@ function createSupplementalSeedEntry(entry: SupplementalVocabularyEntry): SeedEn
     partOfSpeech: entry.partOfSpeech
   };
 }
+
+type QuickWord = {
+  term: string;
+  translation: string;
+};
+
+function createPhraseEntries(
+  leftWords: QuickWord[],
+  rightWords: QuickWord[],
+  note: string,
+  exampleTemplate: (left: QuickWord, right: QuickWord) => string,
+  partOfSpeech: PartOfSpeech = "phrase",
+  translationOrder: "left-first" | "right-first" = "left-first"
+) {
+  return leftWords.flatMap((left) =>
+    rightWords.map((right) =>
+      e(
+        `${left.term} ${right.term}`,
+        translationOrder === "left-first"
+          ? `${left.translation} ${right.translation}`
+          : `${right.translation} ${left.translation}`,
+        exampleTemplate(left, right),
+        note,
+        partOfSpeech
+      )
+    )
+  );
+}
+
+function createNounAdjectivePhrases(
+  nouns: QuickWord[],
+  adjectives: QuickWord[],
+  note: string,
+  exampleTemplate: (noun: QuickWord, adjective: QuickWord) => string
+) {
+  return createPhraseEntries(nouns, adjectives, note, exampleTemplate, "phrase", "right-first");
+}
+
+function createVerbObjectPhrases(
+  verbs: QuickWord[],
+  objects: QuickWord[],
+  note: string,
+  exampleTemplate: (verb: QuickWord, object: QuickWord) => string
+) {
+  return createPhraseEntries(verbs, objects, note, exampleTemplate, "phrase", "left-first");
+}
+
+const COMMUNICATION_VERBS: QuickWord[] = [
+  { term: "a întreba", translation: "спрашивать" },
+  { term: "a spune", translation: "сказать" },
+  { term: "a răspunde", translation: "отвечать" },
+  { term: "a explica", translation: "объяснять" },
+  { term: "a recomanda", translation: "рекомендовать" },
+  { term: "a cere", translation: "просить" },
+  { term: "a invita", translation: "приглашать" },
+  { term: "a confirma", translation: "подтверждать" },
+  { term: "a întreține", translation: "поддерживать" },
+  { term: "a organiza", translation: "организовывать" },
+  { term: "a comunica", translation: "общаться" },
+  { term: "a negocia", translation: "договариваться" },
+  { term: "a propune", translation: "предлагать" },
+  { term: "a întreține", translation: "поддерживать" },
+  { term: "a exprima", translation: "выражать" }
+];
+
+const COMMUNICATION_OBJECTS: QuickWord[] = [
+  { term: "o întrebare", translation: "вопрос" },
+  { term: "o idee", translation: "идею" },
+  { term: "o informație", translation: "информацию" },
+  { term: "o rugăminte", translation: "просьбу" },
+  { term: "o părere", translation: "мнение" },
+  { term: "o soluție", translation: "решение" },
+  { term: "un plan", translation: "план" },
+  { term: "un eveniment", translation: "событие" },
+  { term: "o ofertă", translation: "предложение" },
+  { term: "o idee", translation: "идею" },
+  { term: "un mesaj", translation: "сообщение" },
+  { term: "un raport", translation: "отчет" },
+  { term: "o întâlnire", translation: "встречу" },
+  { term: "un termen", translation: "срок" },
+  { term: "o decizie", translation: "решение" }
+];
+
+const COMMUNICATION_ENTRIES = createVerbObjectPhrases(
+  COMMUNICATION_VERBS,
+  COMMUNICATION_OBJECTS,
+  "Полезные фразы для общения.",
+  (verb, object) => `Te rog, ${verb.term} ${object.term}.`
+);
+
+const EVERYDAY_VERBS: QuickWord[] = [
+  { term: "a trezi", translation: "будить" },
+  { term: "a mânca", translation: "есть" },
+  { term: "a bea", translation: "пить" },
+  { term: "a găti", translation: "готовить" },
+  { term: "a curăța", translation: "убирать" },
+  { term: "a spăla", translation: "мыть" },
+  { term: "a purta", translation: "носить" },
+  { term: "a porni", translation: "включать" },
+  { term: "a opri", translation: "выключать" },
+  { term: "a citi", translation: "читать" },
+  { term: "a scrie", translation: "писать" },
+  { term: "a plăti", translation: "платить" },
+  { term: "a aștepta", translation: "ждать" },
+  { term: "a ieși", translation: "выходить" },
+  { term: "a intra", translation: "входить" }
+];
+
+const EVERYDAY_OBJECTS: QuickWord[] = [
+  { term: "micul dejun", translation: "завтрак" },
+  { term: "o cafea", translation: "кофе" },
+  { term: "masa", translation: "стол" },
+  { term: "hainele", translation: "одежду" },
+  { term: "casa", translation: "дом" },
+  { term: "baia", translation: "ванную" },
+  { term: "camera", translation: "комнату" },
+  { term: "telefonul", translation: "телефон" },
+  { term: "laptopul", translation: "ноутбук" },
+  { term: "lista", translation: "список" },
+  { term: "lumina", translation: "свет" },
+  { term: "ușa", translation: "дверь" },
+  { term: "fereastra", translation: "окно" },
+  { term: "mașina", translation: "машину" },
+  { term: "munca", translation: "работу" }
+];
+
+const EVERYDAY_ENTRIES = createVerbObjectPhrases(
+  EVERYDAY_VERBS,
+  EVERYDAY_OBJECTS,
+  "Действия и бытовые задачи в повседневной жизни.",
+  (verb, object) => `Trebuie să ${verb.term} ${object.term} azi.`
+);
+
+const CLOTHING_NOUNS: QuickWord[] = [
+  { term: "tricou", translation: "футболка" },
+  { term: "cămașă", translation: "рубашка" },
+  { term: "pantaloni", translation: "штаны" },
+  { term: "fustă", translation: "юбка" },
+  { term: "rochie", translation: "платье" },
+  { term: "geacă", translation: "куртка" },
+  { term: "pulover", translation: "свитер" },
+  { term: "pantofi", translation: "туфли" },
+  { term: "șosete", translation: "носки" },
+  { term: "căciulă", translation: "шапка" },
+  { term: "eșarfă", translation: "шарф" },
+  { term: "costum", translation: "костюм" },
+  { term: "sacou", translation: "пиджак" },
+  { term: "bluză", translation: "блузка" },
+  { term: "rochie", translation: "платье" }
+];
+
+const COLORS: QuickWord[] = [
+  { term: "roșu", translation: "красный" },
+  { term: "albastru", translation: "синий" },
+  { term: "verde", translation: "зеленый" },
+  { term: "galben", translation: "жёлтый" },
+  { term: "negru", translation: "черный" },
+  { term: "alb", translation: "белый" },
+  { term: "maro", translation: "коричневый" },
+  { term: "portocaliu", translation: "оранжевый" },
+  { term: "mov", translation: "фиолетовый" },
+  { term: "roz", translation: "розовый" },
+  { term: "gri", translation: "серый" },
+  { term: "bej", translation: "бежевый" },
+  { term: "auriu", translation: "золотой" },
+  { term: "argintiu", translation: "серебристый" },
+  { term: "deschis", translation: "светлый" },
+  { term: "închis", translation: "тёмный" },
+  { term: "cu dungi", translation: "в полоску" },
+  { term: "cu buline", translation: "в горошек" },
+  { term: "din lână", translation: "шерстяной" },
+  { term: "din bumbac", translation: "хлопковый" }
+];
+
+const CLOTHING_ENTRIES = createNounAdjectivePhrases(
+  CLOTHING_NOUNS,
+  COLORS,
+  "Одежда, цвета и стили для повседневной одежды.",
+  (noun, color) => `Am cumpărat un ${noun.term} ${color.term}.`
+);
+
+const FURNITURE_NOUNS: QuickWord[] = [
+  { term: "scaun", translation: "стул" },
+  { term: "masă", translation: "стол" },
+  { term: "pat", translation: "кровать" },
+  { term: "canapea", translation: "диван" },
+  { term: "dulap", translation: "шкаф" },
+  { term: "raft", translation: "полка" },
+  { term: "lampă", translation: "лампа" },
+  { term: "covor", translation: "ковер" },
+  { term: "oglindă", translation: "зеркало" },
+  { term: "perdea", translation: "штора" },
+  { term: "bibliotecă", translation: "библиотека" },
+  { term: "birou", translation: "письменный стол" },
+  { term: "noptieră", translation: "тумбочка" },
+  { term: "fotoliu", translation: "кресло" },
+  { term: "frigider", translation: "холодильник" }
+];
+
+const FURNITURE_ADJECTIVES: QuickWord[] = [
+  { term: "mare", translation: "большой" },
+  { term: "mic", translation: "маленький" },
+  { term: "confortabil", translation: "удобный" },
+  { term: "modern", translation: "современный" },
+  { term: "vechi", translation: "старый" },
+  { term: "nou", translation: "новый" },
+  { term: "elegant", translation: "элегантный" },
+  { term: "solid", translation: "прочный" },
+  { term: "din lemn", translation: "деревянный" },
+  { term: "metallic", translation: "металлический" },
+  { term: "alb", translation: "белый" },
+  { term: "negru", translation: "черный" },
+  { term: "moale", translation: "мягкий" },
+  { term: "tare", translation: "жёсткий" },
+  { term: "simplu", translation: "простой" },
+  { term: "spațios", translation: "просторный" },
+  { term: "îngust", translation: "узкий" },
+  { term: "decorativ", translation: "декоративный" },
+  { term: "practic", translation: "практичный" },
+  { term: "luminos", translation: "светлый" }
+];
+
+const FURNITURE_ENTRIES = createNounAdjectivePhrases(
+  FURNITURE_NOUNS,
+  FURNITURE_ADJECTIVES,
+  "Мебель, интерьер и бытовые предметы.",
+  (noun, adjective) => `În camera mea este un ${noun.term} ${adjective.term}.`
+);
+
+const FOOD_VERBS: QuickWord[] = [
+  { term: "a mânca", translation: "есть" },
+  { term: "a bea", translation: "пить" },
+  { term: "a găti", translation: "готовить" },
+  { term: "a cumpăra", translation: "покупать" },
+  { term: "a pregăti", translation: "готовить" },
+  { term: "a gusta", translation: "пробовать" },
+  { term: "a tăia", translation: "резать" },
+  { term: "a fierbe", translation: "варить" },
+  { term: "a coace", translation: "печь" },
+  { term: "a prăji", translation: "жарить" },
+  { term: "a adăuga", translation: "добавлять" },
+  { term: "a amesteca", translation: "мешать" },
+  { term: "a condimenta", translation: "приправлять" },
+  { term: "a servi", translation: "подавать" },
+  { term: "a gusta", translation: "пробовать" }
+];
+
+const FOOD_NOUNS: QuickWord[] = [
+  { term: "apă", translation: "воду" },
+  { term: "pâine", translation: "хлеб" },
+  { term: "lapte", translation: "молоко" },
+  { term: "cafea", translation: "кофе" },
+  { term: "ceai", translation: "чай" },
+  { term: "măr", translation: "яблоко" },
+  { term: "supă", translation: "суп" },
+  { term: "carne", translation: "мясо" },
+  { term: "salată", translation: "салат" },
+  { term: "brânză", translation: "сыр" },
+  { term: "ouă", translation: "яйца" },
+  { term: "orez", translation: "рис" },
+  { term: "pește", translation: "рыбу" },
+  { term: "fructe", translation: "фрукты" },
+  { term: "legume", translation: "овощи" }
+];
+
+const FOOD_ENTRIES = createVerbObjectPhrases(
+  FOOD_VERBS,
+  FOOD_NOUNS,
+  "Еда, напитки и кулинарные действия.",
+  (verb, object) => `Îmi place să ${verb.term} ${object.term}.`
+);
+
+const SHOPPING_ITEMS: QuickWord[] = [
+  { term: "magazin", translation: "магазин" },
+  { term: "preț", translation: "цена" },
+  { term: "reducere", translation: "скидка" },
+  { term: "card", translation: "карту" },
+  { term: "numerar", translation: "наличные" },
+  { term: "raft", translation: "полку" },
+  { term: "produs", translation: "товар" },
+  { term: "client", translation: "клиента" },
+  { term: "casă de marcat", translation: "кассу" },
+  { term: "cumpărătură", translation: "покупку" },
+  { term: "catalog", translation: "каталог" },
+  { term: "cadou", translation: "подарок" },
+  { term: "pantofi", translation: "туфли" },
+  { term: "haine", translation: "одежду" },
+  { term: "parfum", translation: "парфюм" }
+];
+
+const SHOPPING_ADJECTIVES: QuickWord[] = [
+  { term: "ieftin", translation: "дешёвый" },
+  { term: "scump", translation: "дорогой" },
+  { term: "nou", translation: "новый" },
+  { term: "folosit", translation: "использованный" },
+  { term: "disponibil", translation: "доступный" },
+  { term: "potrivit", translation: "подходящий" },
+  { term: "elegant", translation: "элегантный" },
+  { term: "popular", translation: "популярный" },
+  { term: "special", translation: "специальный" },
+  { term: "digital", translation: "цифровой" },
+  { term: "local", translation: "местный" },
+  { term: "importat", translation: "импортный" },
+  { term: "ecologic", translation: "экологичный" },
+  { term: "modern", translation: "современный" },
+  { term: "tradițional", translation: "традиционный" },
+  { term: "confortabil", translation: "комфортный" }
+];
+
+const SHOPPING_ENTRIES = createNounAdjectivePhrases(
+  SHOPPING_ITEMS,
+  SHOPPING_ADJECTIVES,
+  "Товары и покупки: описания, цены и выбор.",
+  (item, adjective) => `Este un ${item.term} ${adjective.term}.`
+);
+
+const TRAVEL_NOUNS: QuickWord[] = [
+  { term: "autobuz", translation: "автобус" },
+  { term: "tren", translation: "поезд" },
+  { term: "aeroport", translation: "аэропорт" },
+  { term: "hotel", translation: "отель" },
+  { term: "gară", translation: "вокзал" },
+  { term: "taxi", translation: "такси" },
+  { term: "bagaj", translation: "багаж" },
+  { term: "hartă", translation: "карту" },
+  { term: "stradă", translation: "улицу" },
+  { term: "stație", translation: "остановку" },
+  { term: "mașină", translation: "машину" },
+  { term: "bilet", translation: "билет" },
+  { term: "valiză", translation: "чемодан" },
+  { term: "peron", translation: "платформу" },
+  { term: "ghid", translation: "гид" }
+];
+
+const TRAVEL_ADJECTIVES: QuickWord[] = [
+  { term: "rapid", translation: "быстрый" },
+  { term: "lent", translation: "медленный" },
+  { term: "scump", translation: "дорогой" },
+  { term: "ieftin", translation: "дешёвый" },
+  { term: "confortabil", translation: "комфортный" },
+  { term: "modern", translation: "современный" },
+  { term: "foarte mare", translation: "очень большой" },
+  { term: "mic", translation: "маленький" },
+  { term: "aproape", translation: "близкий" },
+  { term: "distanțat", translation: "удалённый" },
+  { term: "nou", translation: "новый" },
+  { term: "vechi", translation: "старый" },
+  { term: "public", translation: "общественный" },
+  { term: "privat", translation: "частный" },
+  { term: "curat", translation: "чистый" }
+];
+
+const TRAVEL_ENTRIES = createNounAdjectivePhrases(
+  TRAVEL_NOUNS,
+  TRAVEL_ADJECTIVES,
+  "Путешествия и город: транспорт, места и маршруты.",
+  (noun, adjective) => `Am mers cu ${noun.term} ${adjective.term}.`
+);
+
+const HEALTH_NOUNS: QuickWord[] = [
+  { term: "cap", translation: "голову" },
+  { term: "mână", translation: "руку" },
+  { term: "ochi", translation: "глаз" },
+  { term: "stomac", translation: "желудок" },
+  { term: "picior", translation: "ногу" },
+  { term: "nas", translation: "нос" },
+  { term: "gură", translation: "рот" },
+  { term: "spate", translation: "спину" },
+  { term: "gât", translation: "горло" },
+  { term: "dinți", translation: "зубы" },
+  { term: "inimă", translation: "сердце" },
+  { term: "ureche", translation: "ухо" },
+  { term: "dureri", translation: "боли" },
+  { term: "febră", translation: "лихорадку" },
+  { term: "tuse", translation: "кашель" }
+];
+
+const HEALTH_ADJECTIVES: QuickWord[] = [
+  { term: "durere", translation: "болезненный" },
+  { term: "fierbinte", translation: "горячий" },
+  { term: "rece", translation: "холодный" },
+  { term: "obosit", translation: "усталый" },
+  { term: "slăbit", translation: "слабый" },
+  { term: "sănătos", translation: "здоровый" },
+  { term: "inflamat", translation: "воспалённый" },
+  { term: "uleios", translation: "жирный" },
+  { term: "curat", translation: "чистый" },
+  { term: "uscat", translation: "сухой" },
+  { term: "umed", translation: "влажный" },
+  { term: "confuz", translation: "смущённый" },
+  { term: "durere", translation: "болезненный" },
+  { term: "grav", translation: "серьёзный" },
+  { term: "uşor", translation: "лёгкий" }
+];
+
+const HEALTH_ENTRIES = createNounAdjectivePhrases(
+  HEALTH_NOUNS,
+  HEALTH_ADJECTIVES,
+  "Здоровье, тело, симптомы и самочувствие.",
+  (noun, adjective) => `Am ${noun.term} ${adjective.term}.`
+);
+
+const WORK_VERBS: QuickWord[] = [
+  { term: "a lucra", translation: "работать" },
+  { term: "a studia", translation: "учиться" },
+  { term: "a organiza", translation: "организовывать" },
+  { term: "a trimite", translation: "отправлять" },
+  { term: "a primi", translation: "получать" },
+  { term: "a citi", translation: "читать" },
+  { term: "a scrie", translation: "писать" },
+  { term: "a explica", translation: "объяснять" },
+  { term: "a planifica", translation: "планировать" },
+  { term: "a semna", translation: "подписывать" },
+  { term: "a analiza", translation: "анализировать" },
+  { term: "a preda", translation: "преподавать" },
+  { term: "a învăța", translation: "изучать" },
+  { term: "a raporta", translation: "докладывать" },
+  { term: "a întâlni", translation: "встречаться" }
+];
+
+const WORK_OBJECTS: QuickWord[] = [
+  { term: "un raport", translation: "отчет" },
+  { term: "o sarcină", translation: "задачу" },
+  { term: "o întâlnire", translation: "встречу" },
+  { term: "un proiect", translation: "проект" },
+  { term: "un client", translation: "клиента" },
+  { term: "un document", translation: "документ" },
+  { term: "o scrisoare", translation: "письмо" },
+  { term: "un termen", translation: "срок" },
+  { term: "o factură", translation: "счет" },
+  { term: "o prezentare", translation: "презентацию" },
+  { term: "o carte", translation: "книгу" },
+  { term: "un curs", translation: "курс" },
+  { term: "o lecție", translation: "урок" },
+  { term: "un calculator", translation: "компьютер" },
+  { term: "un telefon", translation: "телефон" }
+];
+
+const WORK_ENTRIES = createVerbObjectPhrases(
+  WORK_VERBS,
+  WORK_OBJECTS,
+  "Слова и фразы для работы, учебы и офиса.",
+  (verb, object) => `Trebuie să ${verb.term} ${object.term}.`
+);
+
+const NATURE_NOUNS: QuickWord[] = [
+  { term: "soare", translation: "солнце" },
+  { term: "ploaie", translation: "дождь" },
+  { term: "vânt", translation: "ветер" },
+  { term: "zăpadă", translation: "снег" },
+  { term: "nor", translation: "облако" },
+  { term: "copac", translation: "дерево" },
+  { term: "floare", translation: "цветок" },
+  { term: "munte", translation: "гора" },
+  { term: "mare", translation: "море" },
+  { term: "lac", translation: "озеро" },
+  { term: "pădure", translation: "лес" },
+  { term: "râu", translation: "река" },
+  { term: "plajă", translation: "пляж" },
+  { term: "anotimp", translation: "сезон" },
+  { term: "temperatură", translation: "температура" }
+];
+
+const NATURE_ADJECTIVES: QuickWord[] = [
+  { term: "cald", translation: "тёплый" },
+  { term: "rece", translation: "холодный" },
+  { term: "senin", translation: "ясный" },
+  { term: "înnorat", translation: "пасмурный" },
+  { term: "ploios", translation: "дождливый" },
+  { term: "zăpăzos", translation: "снежный" },
+  { term: "vântos", translation: "ветреный" },
+  { term: "verde", translation: "зелёный" },
+  { term: "uscat", translation: "сухой" },
+  { term: "umed", translation: "влажный" },
+  { term: "frumos", translation: "красивый" },
+  { term: "împădurit", translation: "лесной" },
+  { term: "înalt", translation: "высокий" },
+  { term: "adânc", translation: "глубокий" },
+  { term: "calm", translation: "спокойный" }
+];
+
+const NATURE_ENTRIES = createNounAdjectivePhrases(
+  NATURE_NOUNS,
+  NATURE_ADJECTIVES,
+  "Природа и погода: описания окружающего мира.",
+  (noun, adjective) => `Este un ${noun.term} ${adjective.term}.`
+);
+
+const FEELINGS_ADVERBS: QuickWord[] = [
+  { term: "foarte", translation: "очень" },
+  { term: "puțin", translation: "немного" },
+  { term: "destul de", translation: "довольно" },
+  { term: "aproape", translation: "почти" },
+  { term: "complet", translation: "полностью" },
+  { term: "uneori", translation: "иногда" },
+  { term: "mereu", translation: "всегда" },
+  { term: "rar", translation: "редко" },
+  { term: "în mod natural", translation: "естественно" },
+  { term: "foarte puțin", translation: "очень мало" },
+  { term: "aproape întotdeauna", translation: "почти всегда" },
+  { term: "destul de mult", translation: "довольно много" }
+];
+
+const FEELINGS_ADJECTIVES: QuickWord[] = [
+  { term: "fericit", translation: "счастливый" },
+  { term: "trist", translation: "грустный" },
+  { term: "obosit", translation: "усталый" },
+  { term: "nervos", translation: "нервный" },
+  { term: "calm", translation: "спокойный" },
+  { term: "curios", translation: "любопытный" },
+  { term: "îngrijorat", translation: "обеспокоенный" },
+  { term: "entuziasmat", translation: "взволнованный" },
+  { term: "speriat", translation: "испуганный" },
+  { term: "relaxat", translation: "расслабленный" },
+  { term: "mândru", translation: "гордый" },
+  { term: "jenat", translation: "смущённый" },
+  { term: "iubit", translation: "влюблённый" },
+  { term: "dezamăgit", translation: "разочарованный" },
+  { term: "surprins", translation: "удивлённый" }
+];
+
+const FEELINGS_ENTRIES = createPhraseEntries(
+  FEELINGS_ADVERBS,
+  FEELINGS_ADJECTIVES,
+  "Эмоции и состояния: описания самочувствия.",
+  (adverb, adjective) => `Mă simt ${adverb.term} ${adjective.term}.`
+);
+
+const PEOPLE_NOUNS: QuickWord[] = [
+  { term: "mamă", translation: "мама" },
+  { term: "tată", translation: "папа" },
+  { term: "frate", translation: "брат" },
+  { term: "soră", translation: "сестра" },
+  { term: "prieten", translation: "друг" },
+  { term: "coleg", translation: "коллега" },
+  { term: "vecin", translation: "сосед" },
+  { term: "copil", translation: "ребенок" },
+  { term: "bunică", translation: "бабушка" },
+  { term: "bunic", translation: "дедушка" },
+  { term: "soț", translation: "муж" },
+  { term: "soție", translation: "жена" },
+  { term: "șef", translation: "начальник" },
+  { term: "student", translation: "студент" },
+  { term: "profesor", translation: "преподаватель" }
+];
+
+const PEOPLE_ADJECTIVES: QuickWord[] = [
+  { term: "bun", translation: "хороший" },
+  { term: "rău", translation: "плохой" },
+  { term: "fericit", translation: "счастливый" },
+  { term: "trist", translation: "грустный" },
+  { term: "ocupat", translation: "занятый" },
+  { term: "prietenos", translation: "дружелюбный" },
+  { term: "amabil", translation: "вежливый" },
+  { term: "tânăr", translation: "молодой" },
+  { term: "bătrân", translation: "старый" },
+  { term: "energetic", translation: "энергичный" },
+  { term: "calm", translation: "спокойный" },
+  { term: "serios", translation: "серьёзный" },
+  { term: "talentat", translation: "талантливый" },
+  { term: "gentil", translation: "милый" },
+  { term: "curajos", translation: "смелый" }
+];
+
+const PEOPLE_ENTRIES = createNounAdjectivePhrases(
+  PEOPLE_NOUNS,
+  PEOPLE_ADJECTIVES,
+  "Слова о людях, родстве, профессиях и отношениях.",
+  (noun, adjective) => `Este un ${noun.term} ${adjective.term}.`
+);
+
+const GENERATED_FAMILIES: DictionaryFamily[] = [
+  {
+    id: "communication",
+    title: "Общение",
+    description: "Фразы и слова для разговоров, вопросов и общения.",
+    color: "rose",
+    entries: COMMUNICATION_ENTRIES
+  },
+  {
+    id: "everyday-life",
+    title: "Повседневная жизнь",
+    description: "Частые действия и бытовые задачи для дня за днём.",
+    color: "indigo",
+    entries: EVERYDAY_ENTRIES
+  },
+  {
+    id: "clothing",
+    title: "Одежда",
+    description: "Описания одежды, цвета и стиля в повседневных образах.",
+    color: "sky",
+    entries: CLOTHING_ENTRIES
+  },
+  {
+    id: "furniture",
+    title: "Мебель",
+    description: "Слова для мебели, интерьера и домашнего пространства.",
+    color: "emerald",
+    entries: FURNITURE_ENTRIES
+  },
+  {
+    id: "shopping-life",
+    title: "Покупки",
+    description: "Лексика для магазинов, оплаты и выбора товаров.",
+    color: "amber",
+    entries: SHOPPING_ENTRIES
+  },
+  {
+    id: "travel-city-large",
+    title: "Путешествия и город",
+    description: "Транспорт, маршруты и слова для передвижения по городу.",
+    color: "sky",
+    entries: TRAVEL_ENTRIES
+  },
+  {
+    id: "health-body-large",
+    title: "Здоровье и тело",
+    description: "Слова о самочувствии, частях тела и симптомах.",
+    color: "teal",
+    entries: HEALTH_ENTRIES
+  },
+  {
+    id: "work-study-large",
+    title: "Работа и учеба",
+    description: "Офисная и учебная лексика для повседневных задач.",
+    color: "indigo",
+    entries: WORK_ENTRIES
+  },
+  {
+    id: "nature-weather-large",
+    title: "Природа и погода",
+    description: "Описание окружающего мира, погоды и природных явлений.",
+    color: "sky",
+    entries: NATURE_ENTRIES
+  },
+  {
+    id: "feelings-large",
+    title: "Чувства и эмоции",
+    description: "Эмоции, состояние, настроение и описания самочувствия.",
+    color: "rose",
+    entries: FEELINGS_ENTRIES
+  },
+  {
+    id: "people-relations-large",
+    title: "Люди и отношения",
+    description: "Слова о семье, друзьях, отношениях и людях.",
+    color: "emerald",
+    entries: PEOPLE_ENTRIES
+  }
+];
 
 function lookupVariants(term: string) {
   const normalized = normalizeAnswer(term);
@@ -499,7 +1226,7 @@ const SUPPLEMENTAL_FAMILY: DictionaryFamily = {
   entries: SUPPLEMENTAL_VOCABULARY.map(createSupplementalSeedEntry)
 };
 
-const DICTIONARY_FAMILIES = [...FAMILIES, SUPPLEMENTAL_FAMILY];
+const DICTIONARY_FAMILIES = [...FAMILIES, ...GENERATED_FAMILIES, SUPPLEMENTAL_FAMILY];
 const FAMILY_BY_ID = new Map(DICTIONARY_FAMILIES.map((family) => [family.id, family]));
 
 function collectEntriesForSet(blueprint: StudySetBlueprint) {
