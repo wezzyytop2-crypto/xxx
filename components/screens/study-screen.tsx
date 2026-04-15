@@ -7,20 +7,26 @@ import type { ComponentType, SVGProps } from "react";
 import { ArrowLeftIcon, BookIcon, BrainIcon, ClockIcon, PenIcon, StarIcon } from "@/components/icons";
 import { SwipeStack } from "@/components/cards/swipe-stack";
 import { WriteSession } from "@/components/cards/write-session";
+import { QuizSession } from "@/components/cards/quiz-session";
+import { StudyModeSelector } from "@/components/study-mode-selector";
 import { useApp } from "@/components/providers/app-provider";
 import { ProgressBar } from "@/features/shared/progress-components";
-import { buildStudyQueue, repeatCardLater } from "@/lib/study";
-import type { CardRecord, ReviewResult, StudyMode } from "@/lib/types";
+import { buildStudyQueue, repeatCardLater, isStudyMode } from "@/lib/study";
+import type { CardRecord, ReviewResult, StudyMode, StudySet } from "@/lib/types";
 import { cn, formatPercent } from "@/lib/utils";
+import { QuizIcon } from "@/components/icons";
 
 const FOCUS_SESSION_LIMIT = 16;
 
-const modeLabels: Record<StudyMode, { label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }> = {
+const modeLabels: Partial<Record<StudyMode, { label: string; icon: ComponentType<SVGProps<SVGSVGElement>> }>> = {
   focus: { label: "Фокус", icon: StarIcon },
   learn: { label: "Учить", icon: BrainIcon },
   flashcards: { label: "Карточки", icon: BookIcon },
-  write: { label: "Письмо", icon: PenIcon }
+  write: { label: "Письмо", icon: PenIcon },
+  quiz: { label: "Квиз", icon: QuizIcon }
 };
+
+
 
 export function StudyScreen({ setId, initialMode }: { setId: string; initialMode: StudyMode }) {
   const router = useRouter();
@@ -128,35 +134,8 @@ export function StudyScreen({ setId, initialMode }: { setId: string; initialMode
         </div>
       </header>
 
-      <section className="glass-panel rounded-[32px] p-4">
-        <div className="grid grid-cols-2 gap-3">
-          {(["focus", "learn", "flashcards", "write"] as StudyMode[]).map((item) => {
-            const config = modeLabels[item];
-            const Icon = config.icon;
-
-            return (
-              <button
-                key={item}
-                type="button"
-                onClick={() => switchMode(item)}
-                className={cn(
-                  "rounded-[24px] px-3 py-4 text-center transition",
-                  mode === item ? "bg-accent text-slate-950 shadow-glow" : "border border-line bg-black/10 text-text"
-                )}
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs font-semibold">{config.label}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        {mode === "focus" ? (
-          <div className="mt-4 rounded-[24px] border border-spot/30 bg-spot/10 px-4 py-3 text-xs text-spot">
-            Умный микс: слабые, просроченные и новые слова. Быстрый темп и максимум пользы за сессию.
-          </div>
-        ) : null}
+      <section className="glass-panel rounded-[32px] p-6">
+        <StudyModeSelector set={set!} />
       </section>
 
       <section className="glass-panel rounded-[28px] p-4">
@@ -195,6 +174,14 @@ export function StudyScreen({ setId, initialMode }: { setId: string; initialMode
       {current ? (
         mode === "write" ? (
           <WriteSession cards={queue} busy={busy} onAdvance={handleReview} />
+        ) : mode === "quiz" ? (
+          <QuizSession 
+            card={current}
+            allCards={queue}
+            onAnswer={(isCorrect) => handleReview(isCorrect ? "quiz-correct" : "quiz-wrong")}
+            cardIndex={0}
+            totalCards={queue.length} 
+          />
         ) : (
           <SwipeStack
             cards={queue}

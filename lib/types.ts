@@ -14,9 +14,19 @@ export type PartOfSpeech =
 
 export type SetTone = "teal" | "amber" | "rose" | "indigo" | "emerald" | "sky";
 
-export type StudyMode = "focus" | "flashcards" | "learn" | "write";
+export type StudyMode = "focus" | "flashcards" | "learn" | "write" | "quiz";
 
-export type ReviewResult = "known" | "unknown" | "write-correct" | "write-wrong";
+export type QuizType = "multiple-choice" | "fill-in-blank" | "listening" | "translate";
+
+export type ReviewResult = "known" | "unknown" | "write-correct" | "write-wrong" | "quiz-correct" | "quiz-wrong";
+
+export type GrammarMetadata = {
+  gender?: "m" | "f" | "n";
+  number?: "singular" | "plural";
+  article?: string;
+  grammarNote?: string;
+  grammarRuleIds?: string[];
+};
 
 export type CardRecord = {
   id: string;
@@ -27,6 +37,8 @@ export type CardRecord = {
   partOfSpeech: PartOfSpeech;
   createdAt: string;
   updatedAt: string;
+  grammar?: GrammarMetadata;
+  grammarRuleId?: string;
 };
 
 export type StudySet = {

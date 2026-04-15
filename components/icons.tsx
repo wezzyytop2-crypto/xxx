@@ -29,6 +29,20 @@ export function BrainIcon(props: IconProps) {
   );
 }
 
+export function QuizIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M8 3v2" />
+      <path d="M16 3v2" />
+      <rect width="18" height="14" x="3" y="8" rx="2" />
+      <path d="M11 13h2" />
+      <path d="M8 13h2" />
+      <path d="M14 13h2" />
+      <circle cx="12" cy="17" r="1" />
+    </BaseIcon>
+  );
+}
+
 export function PlusIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>
@@ -247,3 +261,23 @@ export function StarIcon(props: IconProps) {
     </BaseIcon>
   );
 }
+
+export function SparklesIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M9 6L4 11L9 16" />
+      <path d="M15 6L20 11L15 16" />
+      <path d="M12 4L13 11L12 18" />
+      <path d="M8 10L12 12L16 10" />
+    </BaseIcon>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </BaseIcon>
+  );
+}
+

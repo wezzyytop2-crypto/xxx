@@ -5,6 +5,10 @@ import { DownloadIcon, UploadIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
 
+function escapeCsv(value: string) {
+  return `"${String(value || "").replace(/"/g, '""')}"`;
+}
+
 export function ExportImport() {
   const { sets, reviews, progressByCard, importBackupData } = useApp();
   const [message, setMessage] = useState<string>("");
@@ -33,6 +37,38 @@ export function ExportImport() {
     setError("");
     setTimeout(() => setMessage(""), 3000);
   }, [sets, reviews, progressByCard]);
+
+  const handleExportCsv = useCallback(() => {
+    const rows = [
+      ["Набор", "Румынский", "Русский", "Пример", "Заметка", "Часть речи"]
+    ];
+
+    for (const set of sets) {
+      for (const card of set.cards) {
+        rows.push([
+          set.title,
+          card.term,
+          card.translation,
+          card.example,
+          card.note,
+          card.partOfSpeech
+        ]);
+      }
+    }
+
+    const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `limbi-cards-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    setMessage("CSV-файл создан.");
+    setError("");
+    setTimeout(() => setMessage(""), 3000);
+  }, [sets]);
 
   const handleImport = useCallback(async (file: File) => {
     try {
@@ -65,7 +101,7 @@ export function ExportImport() {
 
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <button
           type="button"
           onClick={handleExport}
@@ -75,7 +111,18 @@ export function ExportImport() {
           )}
         >
           <DownloadIcon className="h-4 w-4" />
-          Экспортировать данные
+          Экспорт JSON
+        </button>
+        <button
+          type="button"
+          onClick={handleExportCsv}
+          className={cn(
+            "primary-action inline-flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold text-slate-950",
+            "transition"
+          )}
+        >
+          <DownloadIcon className="h-4 w-4" />
+          Экспорт CSV
         </button>
         <button
           type="button"
@@ -86,7 +133,7 @@ export function ExportImport() {
           )}
         >
           <UploadIcon className="h-4 w-4" />
-          Импортировать из JSON
+          Импорт JSON
         </button>
       </div>
       <input

@@ -1,21 +1,26 @@
 import type { AppStats, CardProgress, CardRecord, ReviewLog, ReviewResult, SetStats, StudyMode, StudySet } from "@/lib/types";
 import { countReviewsToday, isToday } from "@/lib/utils";
+import { createInitialSM2State, calculateSM2NextReview } from "@/lib/study-system";
+
+import type { SM2State } from "@/lib/study-system";
 
 export function isStudyMode(value: string | undefined): value is StudyMode {
-  return value === "focus" || value === "flashcards" || value === "learn" || value === "write";
+  return value === "focus" || value === "flashcards" || value === "learn" || value === "write" || value === "quiz";
 }
 
 export function isCorrectResult(result: ReviewResult) {
-  return result === "known" || result === "write-correct";
+  return result === "known" || result === "write-correct" || result === "quiz-correct";
 }
 
+
 export function createInitialProgress(cardId: string, setId: string): CardProgress {
+  const initialSM2 = createInitialSM2State();
   return {
     cardId,
     setId,
-    dueAt: new Date(0).toISOString(),
-    intervalDays: 0,
-    ease: 2.2,
+    dueAt: initialSM2.nextReview,
+    intervalDays: initialSM2.interval,
+    ease: initialSM2.easiness,
     streak: 0,
     knownCount: 0,
     unknownCount: 0,
@@ -24,6 +29,7 @@ export function createInitialProgress(cardId: string, setId: string): CardProgre
     lastResult: null
   };
 }
+
 
 export function isCardDue(progress: CardProgress | undefined) {
   if (!progress) {
@@ -34,34 +40,28 @@ export function isCardDue(progress: CardProgress | undefined) {
 }
 
 export function evolveProgress(current: CardProgress, result: ReviewResult, now = new Date()) {
+  const quality = isCorrectResult(result) ? 5 : 2; // SM-2 quality: 5=perfect, 2=wrong
+  const sm2State = { 
+    easiness: current.ease, 
+    interval: current.intervalDays, 
+    repetition: current.streak,
+    nextReview: current.dueAt 
+  };
+  const nextSM2 = calculateSM2NextReview(quality, sm2State);
+  
   const correct = isCorrectResult(result);
   const next: CardProgress = {
     ...current,
+    ease: nextSM2.easiness,
+    intervalDays: nextSM2.interval,
+    streak: correct ? current.streak + 1 : 0,
+    knownCount: correct ? current.knownCount + 1 : current.knownCount,
+    unknownCount: !correct ? current.unknownCount + 1 : current.unknownCount,
+    mastered: nextSM2.repetition >= 5 || nextSM2.interval >= 21,
     lastResult: result,
-    lastReviewedAt: now.toISOString()
+    lastReviewedAt: now.toISOString(),
+    dueAt: nextSM2.nextReview
   };
-
-  if (correct) {
-    const nextEase = Math.min(3.2, current.ease + 0.12);
-    const baseInterval = current.intervalDays === 0 ? 1 : current.intervalDays;
-    const nextInterval = Math.max(1, Math.round(baseInterval * nextEase));
-
-    next.ease = nextEase;
-    next.intervalDays = nextInterval;
-    next.streak = current.streak + 1;
-    next.knownCount = current.knownCount + 1;
-    next.mastered = next.streak >= 3 || next.intervalDays >= 7;
-    next.dueAt = new Date(now.getTime() + nextInterval * 86_400_000).toISOString();
-
-    return next;
-  }
-
-  next.ease = Math.max(1.35, current.ease - 0.18);
-  next.intervalDays = 0;
-  next.streak = 0;
-  next.unknownCount = current.unknownCount + 1;
-  next.mastered = false;
-  next.dueAt = now.toISOString();
 
   return next;
 }

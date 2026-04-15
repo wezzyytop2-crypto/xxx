@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getAlternativeUserId } from "@/lib/auth";
-import { BookIcon, BrainIcon, HomeIcon, LogOutIcon, PlusIcon } from "@/components/icons";
+import { BookIcon, BrainIcon, HomeIcon, LogOutIcon, PlusIcon, SparklesIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { cn } from "@/lib/utils";
@@ -37,6 +37,13 @@ export function BottomNav() {
       active: pathname === "/translate"
     },
     {
+      key: "grammar",
+      href: "/grammar",
+      label: "Грамматика",
+      icon: SparklesIcon,
+      active: pathname === "/grammar"
+    },
+    {
       key: "review",
       href: reviewTarget ? `/sets/${reviewTarget.set.id}/study?mode=focus` : "/",
       label: "Повтор",
@@ -54,7 +61,7 @@ export function BottomNav() {
 
   return (
     <nav className="bottom-safe fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md px-4 pb-4">
-      <div className="glass-panel grid grid-cols-5 gap-1 rounded-[30px] p-2 shadow-shell">
+      <div className="glass-panel grid grid-cols-6 gap-1 rounded-[30px] p-2 shadow-shell">
         {items.map((item) => {
           const Icon = item.icon;
           const isReview = item.key === "review";

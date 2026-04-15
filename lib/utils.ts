@@ -159,11 +159,13 @@ export function labelForReviewResult(result: ReviewResult) {
   const labels: Record<ReviewResult, string> = {
     known: "Знаю",
     unknown: "Повторить",
-    "write-correct": "Верно",
-    "write-wrong": "Ошибка"
+    "write-correct": "Верно (письмо)",
+    "write-wrong": "Ошибка (письмо)",
+    "quiz-correct": "Верно (квиз)",
+    "quiz-wrong": "Ошибка (квиз)"
   };
 
-  return labels[result];
+  return labels[result] || "Неизвестно";
 }
 
 /**

@@ -61,6 +61,14 @@ export function HomeScreen() {
       return (right.stats?.difficult ?? 0) - (left.stats?.difficult ?? 0);
     })[0];
   const totalDifficult = sets.reduce((sum, set) => sum + (getSetStatsById(set.id)?.difficult ?? 0), 0);
+  const dueSets = sets
+    .map((set) => ({
+      set,
+      stats: getSetStatsById(set.id)
+    }))
+    .filter((item) => (item.stats?.due ?? 0) > 0)
+    .sort((left, right) => (right.stats?.due ?? 0) - (left.stats?.due ?? 0))
+    .slice(0, 3);
   const normalizedQuery = normalizeAnswer(query);
   const visibleSets =
     normalizedQuery.length === 0
@@ -226,6 +234,43 @@ export function HomeScreen() {
           ) : null}
         </div>
       </section>
+
+      {dueSets.length > 0 ? (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="section-kicker">Приоритет</p>
+              <h2 className="text-2xl font-semibold text-text">Сейчас стоит повторить</h2>
+            </div>
+            <Link
+              href={focusLink}
+              className="inline-flex items-center gap-2 rounded-full border border-line/70 bg-white/5 px-4 py-2 text-sm font-semibold text-text transition hover:border-accent/40"
+            >
+              Все повторения
+              <ChevronRightIcon className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            {dueSets.map(({ set, stats }) => (
+              <Link
+                key={set.id}
+                href={`/sets/${set.id}/study?mode=focus`}
+                className="surface-card group flex flex-col justify-between rounded-[28px] p-4 transition hover:bg-white/5"
+              >
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-muted">{set.title}</p>
+                  <p className="mt-3 text-lg font-semibold text-text">{stats?.due ?? 0} повторов</p>
+                </div>
+                <div className="mt-4 flex items-center justify-between gap-2 text-sm text-muted">
+                  <span>{stats?.difficult ?? 0} трудных</span>
+                  <span>{relativeTimeFromNow(stats?.lastReviewedAt ?? null)}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-4">
         <div className="flex items-end justify-between gap-4">
