@@ -35,6 +35,26 @@
   --color-warning: rgb(var(--color-warning-rgb));
 }
 
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root[data-theme='dark'] {
+  --color-background-rgb: 15 20 31;
+  --color-surface-rgb: 28 34 52;
+  --color-surface-soft-rgb: 35 43 66;
+  --color-panel-rgb: 19 24 40;
+  --color-muted-rgb: 169 183 213;
+  --color-line-rgb: 108 124 154;
+  --color-text-rgb: 241 245 255;
+  --color-accent-rgb: 255 206 117;
+  --color-accent-strong-rgb: 244 170 61;
+  --color-spot-rgb: 122 172 255;
+  --color-success-rgb: 110 206 152;
+  --color-danger-rgb: 235 120 120;
+  --color-warning-rgb: 236 173 91;
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
@@ -47,6 +67,14 @@ html {
     radial-gradient(circle at 86% 12%, rgba(92, 149, 214, 0.18), transparent 24%),
     radial-gradient(circle at 50% 100%, rgba(244, 170, 61, 0.14), transparent 30%),
     linear-gradient(180deg, #f7f3ea 0%, #f1e7d7 52%, #ede1ce 100%);
+}
+
+html[data-theme='dark'] {
+  background:
+    radial-gradient(circle at 14% 10%, rgba(255, 206, 117, 0.12), transparent 24%),
+    radial-gradient(circle at 86% 12%, rgba(122, 172, 255, 0.12), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(244, 170, 61, 0.08), transparent 30%),
+    linear-gradient(180deg, #090d16 0%, #121b30 42%, #17243b 100%);
 }
 
 body {

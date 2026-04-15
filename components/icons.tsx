@@ -184,6 +184,30 @@ export function UploadIcon(props: IconProps) {
   );
 }
 
+export function SunIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 4V2" />
+      <path d="M12 22v-2" />
+      <path d="M4 12H2" />
+      <path d="M22 12h-2" />
+      <path d="m5.6 5.6-1.4-1.4" />
+      <path d="m19.8 19.8-1.4-1.4" />
+      <path d="m5.6 18.4-1.4 1.4" />
+      <path d="m19.8 4.2-1.4 1.4" />
+      <circle cx="12" cy="12" r="5" />
+    </BaseIcon>
+  );
+}
+
+export function MoonIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M21 12.79A9 9 0 0 1 11.21 3 7 7 0 1 0 21 12.79Z" />
+    </BaseIcon>
+  );
+}
+
 export function LogOutIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>
