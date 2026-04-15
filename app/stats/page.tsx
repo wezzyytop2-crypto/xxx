@@ -1,37 +1,54 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { ArrowLeftIcon } from "@/components/icons";
-import { LoadingSpinner } from "@/components/loading-spinner";
-
-const StatsOverviewScreen = dynamic(
-  () => import("@/features/shared/stats-overview-screen").then((mod) => ({ default: mod.StatsOverviewScreen })),
-  { loading: () => <LoadingSpinner /> }
-);
+import { useApp } from "@/components/providers/app-provider";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function StatsPage() {
+  const { appStats, sets } = useApp();
+
+  const chartData = [
+    { name: 'Должно', value: appStats.dueCards },
+    { name: 'Освоено', value: appStats.masteredCards },
+    { name: 'Сегодня', value: appStats.reviewsToday }
+  ];
+
   return (
     <div className="screen-pad flex flex-col gap-6 pb-8">
-      <header className="top-safe flex items-start justify-between gap-4">
-        <div>
-          <p className="section-kicker">Progress</p>
-          <h1 className="mt-3 text-3xl font-semibold text-text">Статистика</h1>
-          <p className="mt-2 max-w-sm text-sm leading-6 text-muted">
-            Темп, точность и состояние наборов в одном месте. Всё считается локально и обновляется после каждой сессии.
-          </p>
-        </div>
-
-        <Link
-          href="/"
-          className="secondary-action inline-flex items-center gap-2 rounded-full px-3.5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-text"
-        >
-          <ArrowLeftIcon className="h-4 w-4 text-accent" />
-          Назад
-        </Link>
+      <header>
+        <h1 className="text-3xl font-semibold text-text">Статистика</h1>
+        <p className="mt-2 text-muted">Твой прогресс по изучению</p>
       </header>
 
-      <StatsOverviewScreen />
+      <div className="glass-panel rounded-[32px] p-6">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-accent">{appStats.reviewsToday}</div>
+            <div className="mt-1 text-sm text-muted">Сегодня</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-emerald-500">{appStats.dueCards}</div>
+            <div className="mt-1 text-sm text-muted">К повтору</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-sky-500">{appStats.level}</div>
+            <div className="mt-1 text-sm text-muted">Уровень</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-panel rounded-[32px] p-6">
+        <h2 className="text-xl font-semibold mb-4">Прогресс по категориям</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={chartData}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill="#3b82f6" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
+

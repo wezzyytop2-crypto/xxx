@@ -27,6 +27,7 @@ type AppContextValue = {
     mode: StudyMode;
     result: ReviewResult;
   }) => Promise<void>;
+  speak: (text: string) => void;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);

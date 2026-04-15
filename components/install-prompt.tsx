@@ -1,75 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { DownloadIcon } from "@/components/icons";
+import { useEffect, useState } from 'react';
 
 export function InstallPrompt() {
-  const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
-  const [showIosHint, setShowIosHint] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstall, setShowInstall] = useState(false);
 
   useEffect(() => {
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone);
-    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
 
-    setInstalled(isStandalone);
-    setShowIosHint(isIos && !isStandalone);
-
-    function handleBeforeInstallPrompt(event: Event) {
-      event.preventDefault();
-      setPromptEvent(event as BeforeInstallPromptEvent);
-    }
-
-    function handleAppInstalled() {
-      setInstalled(true);
-      setPromptEvent(null);
-    }
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener('beforeinstallprompt', handler);
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener('beforeinstallprompt', handler);
     };
   }, []);
 
-  async function install() {
-    if (!promptEvent) {
-      return;
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowInstall(false);
+      setDeferredPrompt(null);
     }
+  };
 
-    await promptEvent.prompt();
-    await promptEvent.userChoice;
-    setPromptEvent(null);
-  }
+  if (!showInstall) return null;
 
-  if (installed) {
-    return <span className="pill-tag text-xs">Установлено</span>;
-  }
-
-  if (promptEvent) {
-    return (
-      <button
-        type="button"
-        onClick={() => void install()}
-        className="primary-action inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold text-slate-950"
-      >
-        <DownloadIcon className="h-4 w-4" />
-        Установить
-      </button>
-    );
-  }
-
-  if (showIosHint) {
-    return (
-      <span className="pill-tag text-[11px] leading-5">
-        Safari → Поделиться → На экран домой
-      </span>
-    );
-  }
-
-  return <span className="pill-tag text-xs">Offline ready</span>;
+  return (
+    <div className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 transform gap-3 rounded-2xl bg-accent/95 px-6 py-4 shadow-2xl backdrop-blur-sm">
+      <div>
+        <h3 className="font-semibold text-slate-950">Установить приложение</h3>
+        <p className="mt-1 text-sm text-slate-800">Добавь на главный экран для оффлайн</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={handleInstall} className="primary-action px-4 py-2 text-slate-950">
+          Установить
+        </button>
+        <button onClick={() => setShowInstall(false)} className="px-4 py-2 text-slate-800">
+          Позже
+        </button>
+      </div>
+    </div>
+  );
 }
+

@@ -55,7 +55,7 @@ export function QuizSession({ card, allCards, onAnswer, cardIndex, totalCards }:
         </div>
 
         <div className="space-y-4">
-          <p className="text-lg font-semibold text-text">{question.question}</p>
+            <p className="text-lg font-semibold text-text">{question.question.replace(/Як/gi, 'Как').replace(/перекладується/gi, 'переводится').replace(/Введи/gi, 'Введи')}</p>
 
           {quizType === "multiple-choice" ? (
             <div className="space-y-3">
