@@ -143,8 +143,8 @@ export function generateMultipleChoiceQuestion(
     type: "multiple-choice",
     question:
       questionType === "rumanian-to-russian"
-        ? `Як перекладується слово "${card.term}"?`
-        : `Яке румынське слово означає "${card.translation}"?`,
+        ? `Как переводится слово "${card.term}"?`
+        : `Какое румынское слово означает "${card.translation}"?`,
     options,
     correctAnswer,
     card
