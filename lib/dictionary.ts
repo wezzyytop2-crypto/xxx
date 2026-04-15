@@ -1,4 +1,8 @@
 import type { PartOfSpeech, SetTone, StudySet } from "@/lib/types";
+import {
+  SUPPLEMENTAL_VOCABULARY,
+  type SupplementalVocabularyEntry
+} from "@/lib/supplemental-vocabulary";
 import { normalizeAnswer } from "@/lib/utils";
 
 type SeedEntry = {
@@ -18,12 +22,12 @@ type DictionaryFamily = {
   entries: SeedEntry[];
 };
 
-type VariantBlueprint = {
-  key: string;
+type StudySetBlueprint = {
+  id: string;
   title: string;
   description: string;
-  offset: number;
-  targetSize: number;
+  color: SetTone;
+  familyIds: string[];
 };
 
 export type DictionaryEntry = SeedEntry & {
@@ -35,18 +39,77 @@ export type DictionaryEntry = SeedEntry & {
 
 const seedTime = "2026-04-03T00:15:00.000Z";
 
-const VARIANT_BLUEPRINTS: VariantBlueprint[] = [
-  { key: "focus", title: "Фокус 52", description: "Основная колода по теме с расширенным окружением слов.", offset: 0, targetSize: 52 },
-  { key: "starter", title: "Старт 52", description: "База для первых интенсивных повторений и быстрого набора темпа.", offset: 7, targetSize: 52 },
-  { key: "dialog", title: "Диалог 52", description: "Блок для живой речи, частых фраз и разговорного контекста.", offset: 14, targetSize: 52 },
-  { key: "context", title: "Контекст 52", description: "Смешанный набор для понимания слов в разных ситуациях.", offset: 21, targetSize: 52 },
-  { key: "practice", title: "Практика 52", description: "Подходит для ежедневного Flashcards и Learn режима.", offset: 28, targetSize: 52 },
-  { key: "everyday", title: "Everyday 52", description: "Широкая подборка частотной бытовой лексики вокруг темы.", offset: 35, targetSize: 52 },
-  { key: "write", title: "Write 52", description: "Набор, удобный для письменного ввода и проверки перевода.", offset: 42, targetSize: 52 },
-  { key: "review", title: "Повтор 52", description: "Ровная колода для закрепления и интервального повторения.", offset: 49, targetSize: 52 },
-  { key: "active", title: "Активный 52", description: "Подборка для быстрого активного словаря и устной практики.", offset: 56, targetSize: 52 },
-  { key: "exam", title: "Экзамен 52", description: "Более плотный микс для целевых 50+ карточек за одну тему.", offset: 63, targetSize: 52 },
-  { key: "intense", title: "Интенсив 52", description: "Большой сет для короткого дедлайна и быстрого заучивания.", offset: 70, targetSize: 52 }
+const SET_BLUEPRINTS: StudySetBlueprint[] = [
+  {
+    id: "basics-routine",
+    title: "База общения и рутина",
+    description: "Приветствия, вежливые формулы, части дня и слова для ежедневного темпа общения.",
+    color: "teal",
+    familyIds: ["greetings", "time"]
+  },
+  {
+    id: "study-work",
+    title: "Учеба и работа",
+    description: "Базовая лексика для уроков, объяснений, офиса и коротких рабочих диалогов.",
+    color: "indigo",
+    familyIds: ["study-work"]
+  },
+  {
+    id: "travel-city",
+    title: "Путешествие и город",
+    description: "Транспорт, ориентирование и полезные слова для дороги и городской среды.",
+    color: "sky",
+    familyIds: ["travel-city"]
+  },
+  {
+    id: "home-daily",
+    title: "Дом и повседневность",
+    description: "Комнаты, бытовые предметы и простая домашняя лексика на каждый день.",
+    color: "emerald",
+    familyIds: ["home"]
+  },
+  {
+    id: "food-money",
+    title: "Еда, покупки и деньги",
+    description: "Все, что пригодится в магазине, кафе, на кассе и в бытовых покупках.",
+    color: "amber",
+    familyIds: ["food", "shopping"]
+  },
+  {
+    id: "health-body",
+    title: "Тело и здоровье",
+    description: "Самочувствие, части тела, отдых и слова, которые нужны для заботы о себе.",
+    color: "teal",
+    familyIds: ["health"]
+  },
+  {
+    id: "nature-weather",
+    title: "Погода и природа",
+    description: "Сезоны, улица, природные явления и базовые слова для описания окружающего мира.",
+    color: "sky",
+    familyIds: ["weather"]
+  },
+  {
+    id: "people-relations",
+    title: "Люди и отношения",
+    description: "Семья, друзья, знакомые и слова для разговоров о людях вокруг.",
+    color: "emerald",
+    familyIds: ["people"]
+  },
+  {
+    id: "feelings-actions",
+    title: "Чувства, качества и действия",
+    description: "Прилагательные, состояния и частые глаголы для живой повседневной речи.",
+    color: "rose",
+    familyIds: ["emotions", "common-verbs"]
+  },
+  {
+    id: "expanded-vocabulary",
+    title: "Расширенный словарь",
+    description: "Дополнительные базовые слова из встроенного переводчика, чтобы запас рос быстрее.",
+    color: "indigo",
+    familyIds: ["supplemental-core"]
+  }
 ];
 
 function slugify(value: string) {
@@ -72,6 +135,38 @@ function e(
     example,
     note,
     partOfSpeech
+  };
+}
+
+function genderLabel(gender: "m" | "f" | "n") {
+  const labels = {
+    m: "мужской род",
+    f: "женский род",
+    n: "средний род"
+  };
+
+  return labels[gender];
+}
+
+function createSupplementalNote(entry: SupplementalVocabularyEntry) {
+  const parts = [
+    entry.ipa ? `IPA: /${entry.ipa}/` : null,
+    entry.gender ? genderLabel(entry.gender) : null,
+    entry.frequency ? `частотность ${entry.frequency}/5` : null,
+    entry.synonyms?.length ? `синонимы: ${entry.synonyms.join(", ")}` : null
+  ].filter(Boolean);
+
+  return parts.join(" · ");
+}
+
+function createSupplementalSeedEntry(entry: SupplementalVocabularyEntry): SeedEntry {
+  return {
+    key: slugify(entry.term),
+    term: entry.term,
+    translation: entry.translation,
+    example: entry.example,
+    note: createSupplementalNote(entry),
+    partOfSpeech: entry.partOfSpeech
   };
 }
 
@@ -354,24 +449,24 @@ function createDictionaryEntry(family: DictionaryFamily, entry: SeedEntry): Dict
 }
 
 function createStudySet(
-  family: DictionaryFamily,
-  familyIndex: number,
+  setKey: string,
+  color: SetTone,
   title: string,
   description: string,
   entries: SeedEntry[],
   setIndex: number
 ): StudySet {
-  const setId = `seed-${family.id}-${slugify(title)}`;
-  const timestamp = new Date(new Date(seedTime).getTime() + (familyIndex * 16 + setIndex) * 60_000).toISOString();
+  const setId = `seed-${setKey}`;
+  const timestamp = new Date(new Date(seedTime).getTime() + setIndex * 60_000).toISOString();
 
   return {
     id: setId,
     title,
     description,
-    color: family.color,
+    color,
     createdAt: timestamp,
     updatedAt: timestamp,
-    cards: entries.map((entry, entryIndex) => ({
+    cards: entries.map((entry) => ({
       id: `${setId}-${entry.key}`,
       term: entry.term,
       translation: entry.translation,
@@ -384,68 +479,57 @@ function createStudySet(
   };
 }
 
-function takeWrappedEntries(entries: SeedEntry[], start: number) {
-  const result: SeedEntry[] = [];
+function uniqueEntries(entries: SeedEntry[]) {
+  const unique = new Map<string, SeedEntry>();
 
-  for (let index = 0; index < entries.length; index += 1) {
-    result.push(entries[(start + index) % entries.length]);
-  }
-
-  return result;
-}
-
-function buildVariantEntries(
-  family: DictionaryFamily,
-  blueprint: VariantBlueprint,
-  familyIndex: number,
-  variantIndex: number,
-  globalEntries: SeedEntry[]
-) {
-  const selected = new Map<string, SeedEntry>();
-
-  for (const entry of family.entries) {
-    selected.set(entry.key, entry);
-  }
-
-  const start = (familyIndex * 19 + variantIndex * 11 + blueprint.offset) % globalEntries.length;
-
-  for (const entry of takeWrappedEntries(globalEntries, start)) {
-    if (!selected.has(entry.key)) {
-      selected.set(entry.key, entry);
-    }
-
-    if (selected.size >= blueprint.targetSize) {
-      break;
+  for (const entry of entries) {
+    if (!unique.has(entry.key)) {
+      unique.set(entry.key, entry);
     }
   }
 
-  return [...selected.values()].slice(0, blueprint.targetSize);
+  return [...unique.values()];
 }
 
-export const BUILT_IN_DICTIONARY: DictionaryEntry[] = FAMILIES.flatMap((family) =>
+const SUPPLEMENTAL_FAMILY: DictionaryFamily = {
+  id: "supplemental-core",
+  title: "Расширенный словарь",
+  description: "Дополнительные базовые слова из встроенного переводчика.",
+  color: "indigo",
+  entries: SUPPLEMENTAL_VOCABULARY.map(createSupplementalSeedEntry)
+};
+
+const DICTIONARY_FAMILIES = [...FAMILIES, SUPPLEMENTAL_FAMILY];
+const FAMILY_BY_ID = new Map(DICTIONARY_FAMILIES.map((family) => [family.id, family]));
+
+function collectEntriesForSet(blueprint: StudySetBlueprint) {
+  return uniqueEntries(blueprint.familyIds.flatMap((familyId) => FAMILY_BY_ID.get(familyId)?.entries ?? []));
+}
+
+export const BUILT_IN_DICTIONARY: DictionaryEntry[] = DICTIONARY_FAMILIES.flatMap((family) =>
   family.entries.map((entry) => createDictionaryEntry(family, entry))
 );
 
-export const BUILT_IN_SETS: StudySet[] = FAMILIES.flatMap((family, familyIndex) => {
-  const globalEntries = FAMILIES.flatMap((item) => item.entries);
+export const BUILT_IN_SETS: StudySet[] = SET_BLUEPRINTS.map((blueprint, index) =>
+  createStudySet(
+    blueprint.id,
+    blueprint.color,
+    blueprint.title,
+    blueprint.description,
+    collectEntriesForSet(blueprint),
+    index
+  )
+);
 
-  return VARIANT_BLUEPRINTS.map((blueprint, blueprintIndex) =>
-    createStudySet(
-      family,
-      familyIndex,
-      `${family.title}: ${blueprint.title}`,
-      `${family.description} ${blueprint.description}`,
-      buildVariantEntries(family, blueprint, familyIndex, blueprintIndex, globalEntries),
-      blueprintIndex
-    )
-  );
-});
+const cardsPerSet = BUILT_IN_SETS.map((set) => set.cards.length);
 
 export const BUILT_IN_LIBRARY_STATS = {
-  families: FAMILIES.length,
+  families: DICTIONARY_FAMILIES.length,
   categories: BUILT_IN_SETS.length,
   words: BUILT_IN_DICTIONARY.length,
-  cardsPerCategory: Math.min(...BUILT_IN_SETS.map((set) => set.cards.length)),
+  cardsPerCategory: Math.round(cardsPerSet.reduce((sum, count) => sum + count, 0) / cardsPerSet.length),
+  minCardsPerSet: Math.min(...cardsPerSet),
+  maxCardsPerSet: Math.max(...cardsPerSet),
   totalPreparedCards: BUILT_IN_SETS.reduce((sum, set) => sum + set.cards.length, 0)
 };
 

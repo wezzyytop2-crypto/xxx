@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { DictionaryCard } from "@/components/dictionary-card";
 import { RefreshIcon } from "@/components/icons";
-import { translate } from "@/lib/translation";
+import { TRANSLATION_DICTIONARY_SIZE, translate } from "@/lib/translation";
 import type { TranslationDirection, TranslationResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +63,8 @@ export default function TranslatePage() {
         <p className="section-kicker">Instant Dictionary</p>
         <h1 className="mt-3 text-3xl font-semibold leading-tight text-text text-balance">Словарь Romanian ↔ Russian</h1>
         <p className="mt-3 max-w-sm text-sm leading-6 text-muted">
-          Быстрый локальный поиск по словам, значениям и примерам. Без сети, без ожидания, с произношением для румынских слов.
+          Быстрый локальный поиск по {TRANSLATION_DICTIONARY_SIZE} словам, значениям и примерам. Без сети, без ожидания, с
+          произношением для румынских слов.
         </p>
       </header>
 
@@ -84,6 +85,21 @@ export default function TranslatePage() {
           </button>
         </div>
 
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="surface-card rounded-[24px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Слов</p>
+            <p className="mt-2 text-2xl font-semibold text-text">{TRANSLATION_DICTIONARY_SIZE}</p>
+          </div>
+          <div className="surface-card rounded-[24px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Режим</p>
+            <p className="mt-2 text-base font-semibold text-text">{directionLabel}</p>
+          </div>
+          <div className="surface-card rounded-[24px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Память</p>
+            <p className="mt-2 text-2xl font-semibold text-text">{recentSearches.length}</p>
+          </div>
+        </div>
+
         <div className="mt-5">
           <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-muted" htmlFor="dictionary-search">
             Поиск
@@ -94,7 +110,7 @@ export default function TranslatePage() {
               type="text"
               value={query}
               onChange={(event) => handleSearch(event.target.value)}
-              placeholder={placeholder}
+              placeholder={`${placeholder} или часть слова`}
               autoFocus
               className="w-full bg-transparent text-base text-text outline-none placeholder:text-muted/80"
             />
@@ -221,7 +237,8 @@ export default function TranslatePage() {
           <p className="section-kicker">Quick Start</p>
           <h2 className="mt-3 text-2xl font-semibold text-text">Начни с короткого запроса</h2>
           <p className="mt-2 max-w-sm text-sm leading-6 text-muted">
-            Словарь работает мгновенно и локально. Попробуй одно из популярных слов, чтобы быстро перейти к карточке.
+            Словарь работает мгновенно и локально. Попробуй одно из популярных слов или введи только корень, если не помнишь
+            полную форму.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">

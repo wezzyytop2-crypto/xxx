@@ -120,7 +120,7 @@ const DB_VERSION = 1;
 const LEGACY_DB_NAME = "limbi-local-db";
 const LEGACY_DB_VERSION = 1;
 const SEEDED_KEY = "builtins-version";
-const BUILT_IN_VERSION = "2026-04-03-cards-52";
+const BUILT_IN_VERSION = "2026-04-15-library-10-sets-expanded";
 const LEGACY_IMPORT_KEY = "legacy-import-v1";
 const LEGACY_IMPORT_VERSION = "2026-04-08-user1-import";
 

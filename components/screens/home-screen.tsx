@@ -85,6 +85,8 @@ export function HomeScreen() {
     appStats.dueCards > 0
       ? `У тебя уже ${appStats.reviewsToday} проверок сегодня. Давай пройдём короткую фокус-сессию и закроем хвосты.`
       : "Очередь чистая. Можно пройти короткий умный повтор, заглянуть в словарь или создать новый набор.";
+  const averageSetSize = BUILT_IN_LIBRARY_STATS.cardsPerCategory;
+  const setRangeLabel = `${BUILT_IN_LIBRARY_STATS.minCardsPerSet}-${BUILT_IN_LIBRARY_STATS.maxCardsPerSet}`;
 
   return (
     <div className="screen-pad flex flex-col gap-6 pb-8">
@@ -113,7 +115,7 @@ export function HomeScreen() {
             </span>
           )}
         </span>
-        <span className="pill-tag text-xs">Local-first · IndexedDB</span>
+        <span className="pill-tag text-xs">{BUILT_IN_LIBRARY_STATS.categories} крупных наборов · {BUILT_IN_LIBRARY_STATS.words} слов</span>
       </div>
 
       <section className="hero-panel relative overflow-hidden rounded-[36px] p-6">
@@ -214,10 +216,10 @@ export function HomeScreen() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="section-kicker">Коллекция</p>
-            <h2 className="mt-2 text-2xl font-semibold text-text">Наборы</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-text">Библиотека без дублей</h2>
             <p className="mt-2 max-w-xs text-sm leading-6 text-muted">
-              {BUILT_IN_LIBRARY_STATS.categories} категорий и около {BUILT_IN_LIBRARY_STATS.cardsPerCategory} карточек в каждом
-              встроенном наборе.
+              {BUILT_IN_LIBRARY_STATS.categories} крупных наборов и {BUILT_IN_LIBRARY_STATS.words} слов. В среднем по {averageSetSize} карточек,
+              диапазон от {BUILT_IN_LIBRARY_STATS.minCardsPerSet} до {BUILT_IN_LIBRARY_STATS.maxCardsPerSet}.
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -234,9 +236,24 @@ export function HomeScreen() {
           </div>
         </div>
 
+        <div className="grid grid-cols-3 gap-3">
+          <div className="surface-card rounded-[28px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Словарь</p>
+            <p className="mt-2 text-2xl font-semibold text-text">{BUILT_IN_LIBRARY_STATS.words}</p>
+          </div>
+          <div className="surface-card rounded-[28px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Наборы</p>
+            <p className="mt-2 text-2xl font-semibold text-text">{BUILT_IN_LIBRARY_STATS.categories}</p>
+          </div>
+          <div className="surface-card rounded-[28px] p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-muted">Размер</p>
+            <p className="mt-2 text-2xl font-semibold text-text">{setRangeLabel}</p>
+          </div>
+        </div>
+
         <div className="glass-panel rounded-[32px] p-4">
           <label className="mb-2 block text-xs uppercase tracking-[0.18em] text-muted" htmlFor="sets-search">
-            Поиск по темам и словам
+            Поиск по наборам, словам и примерам
           </label>
           <div className="field-shell flex items-center gap-3 rounded-[26px] px-4 py-3">
             <DeckIcon className="h-5 w-5 text-muted" />
@@ -244,7 +261,7 @@ export function HomeScreen() {
               id="sets-search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Например: casa, путешествие, семья"
+              placeholder="Например: casă, семья, дорога, еда"
               className="w-full bg-transparent text-sm text-text outline-none placeholder:text-muted/80"
             />
           </div>

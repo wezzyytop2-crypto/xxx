@@ -1,9 +1,43 @@
+import { BUILT_IN_DICTIONARY } from '@/lib/dictionary';
 import { ROMANIAN_RUSSIAN_DICTIONARY } from '@/lib/dictionary-ro-ru';
 import type { DictionaryEntry, TranslationResult, TranslationDirection } from '@/lib/types';
 
 // Кеш результатов поиска (макс 50 последних запросов)
 const searchCache = new Map<string, TranslationResult>();
 const CACHE_MAX_SIZE = 50;
+
+function createBuiltInTranslationEntry(
+  entry: (typeof BUILT_IN_DICTIONARY)[number]
+): DictionaryEntry {
+  return {
+    id: entry.id,
+    romanian: entry.term,
+    russian: entry.translation,
+    partOfSpeech: entry.partOfSpeech
+  };
+}
+
+function dedupeEntries(entries: DictionaryEntry[]) {
+  const seen = new Set<string>();
+
+  return entries.filter((entry) => {
+    const key = `${normalizeText(entry.romanian)}::${entry.partOfSpeech}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+const SEARCH_DICTIONARY = dedupeEntries([
+  ...ROMANIAN_RUSSIAN_DICTIONARY,
+  ...BUILT_IN_DICTIONARY.map(createBuiltInTranslationEntry)
+]);
+
+export const TRANSLATION_DICTIONARY_SIZE = SEARCH_DICTIONARY.length;
 
 /**
  * Нормализует текст для поиска:
@@ -115,13 +149,13 @@ function translateUncached(
   const normalizedQuery = normalizeText(query);
 
   // Точное совпадение (игнорируя диакритику)
-  const exact = ROMANIAN_RUSSIAN_DICTIONARY.filter(entry => {
+  const exact = SEARCH_DICTIONARY.filter(entry => {
     const normalized = normalizeText(entry[searchKey]);
     return normalized === normalizedQuery;
   });
 
   // Частичное совпадение (начинается с)
-  const partial = ROMANIAN_RUSSIAN_DICTIONARY.filter(entry => {
+  const partial = SEARCH_DICTIONARY.filter(entry => {
     const normalized = normalizeText(entry[searchKey]);
     return (
       normalized.startsWith(normalizedQuery) &&
@@ -132,7 +166,7 @@ function translateUncached(
   // Нечеткий поиск (для опечаток и подобных)
   const fuzzy: Array<{ entry: DictionaryEntry; similarity: number }> = [];
 
-  ROMANIAN_RUSSIAN_DICTIONARY.forEach(entry => {
+  SEARCH_DICTIONARY.forEach(entry => {
     if (exact.some(e => e.id === entry.id) || partial.some(e => e.id === entry.id)) {
       return; // Пропустить если уже в exact/partial
     }
@@ -195,15 +229,15 @@ export function isCorrectTranslation(
  * для практики
  */
 export function getRandomWord(): DictionaryEntry {
-  const randomIndex = Math.floor(Math.random() * ROMANIAN_RUSSIAN_DICTIONARY.length);
-  return ROMANIAN_RUSSIAN_DICTIONARY[randomIndex];
+  const randomIndex = Math.floor(Math.random() * SEARCH_DICTIONARY.length);
+  return SEARCH_DICTIONARY[randomIndex];
 }
 
 /**
  * Получает слова определенной части речи
  */
 export function getWordsByPartOfSpeech(partOfSpeech: string): DictionaryEntry[] {
-  return ROMANIAN_RUSSIAN_DICTIONARY.filter(
+  return SEARCH_DICTIONARY.filter(
     entry => entry.partOfSpeech === partOfSpeech
   );
 }
@@ -212,7 +246,7 @@ export function getWordsByPartOfSpeech(partOfSpeech: string): DictionaryEntry[] 
  * Получает самые частотные слова
  */
 export function getMostFrequentWords(limit: number = 20): DictionaryEntry[] {
-  return [...ROMANIAN_RUSSIAN_DICTIONARY]
+  return [...SEARCH_DICTIONARY]
     .sort((a, b) => (b.frequency || 0) - (a.frequency || 0))
     .slice(0, limit);
 }
@@ -221,7 +255,7 @@ export function getMostFrequentWords(limit: number = 20): DictionaryEntry[] {
  * Поиск слова по ID
  */
 export function getWordById(id: string): DictionaryEntry | undefined {
-  return ROMANIAN_RUSSIAN_DICTIONARY.find(entry => entry.id === id);
+  return SEARCH_DICTIONARY.find(entry => entry.id === id);
 }
 
 /**
