@@ -17,6 +17,7 @@ import {
 import { useApp } from "@/components/providers/app-provider";
 import { speakRomanian } from "@/lib/speech";
 import { formatDateTime, formatPercent, labelForReviewResult, partOfSpeechLabel, toneStyles } from "@/lib/utils";
+import { useState } from "react";
 
 export function SetDetailScreen({ setId }: { setId: string }) {
   const router = useRouter();
@@ -24,6 +25,7 @@ export function SetDetailScreen({ setId }: { setId: string }) {
   const set = getSet(setId);
   const stats = set ? getSetStatsById(set.id) : null;
   const tone = set ? toneStyles[set.color] : toneStyles.teal;
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
 
   async function removeSet() {
     const confirmed = window.confirm("Удалить набор и весь прогресс по нему?");
@@ -44,6 +46,34 @@ export function SetDetailScreen({ setId }: { setId: string }) {
     }
 
     await resetProgressForSet(setId);
+  }
+
+  async function shareSet() {
+    if (!set) return;
+    const json = JSON.stringify(set, null, 2);
+    const file = new File([json], `${set.title || "set"}.json`, { type: "application/json" });
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: set.title,
+          text: `Набор LIMBI: ${set.title}`,
+          files: [file]
+        });
+        setShareStatus("Набор успешно отправлен!");
+      } catch {
+        setShareStatus("Не удалось поделиться набором.");
+      }
+    } else if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(json);
+        setShareStatus("JSON набора скопирован в буфер обмена!");
+      } catch {
+        setShareStatus("Не удалось скопировать JSON.");
+      }
+    } else {
+      setShareStatus("Ваш браузер не поддерживает обмен файлами или буфер обмена.");
+    }
+    setTimeout(() => setShareStatus(null), 3000);
   }
 
   if (!ready) {
@@ -149,7 +179,20 @@ export function SetDetailScreen({ setId }: { setId: string }) {
           <TrashIcon className="h-4 w-4" />
           Удалить
         </button>
+        <button
+          type="button"
+          onClick={shareSet}
+          className="inline-flex items-center justify-center gap-2 rounded-[24px] border border-accent/40 bg-accent/10 px-4 py-4 text-sm font-medium text-accent"
+        >
+          <ShareIcon className="h-4 w-4" />
+          Поделиться
+        </button>
       </section>
+      {shareStatus && (
+        <div className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-accent px-6 py-3 text-center text-slate-950 shadow-xl">
+          {shareStatus}
+        </div>
+      )}
 
       <section className="glass-panel rounded-[32px] p-5">
         <div className="mb-4 flex items-center justify-between">

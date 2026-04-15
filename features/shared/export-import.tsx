@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from "react";
 import { DownloadIcon, UploadIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
+import { exportSetToAnki } from "@/lib/anki";
+import { ImportAnkiButton } from "@/components/import-anki-button";
 
 function escapeCsv(value: string) {
   return `"${String(value || "").replace(/"/g, '""')}"`;
@@ -13,6 +15,7 @@ export function ExportImport() {
   const { sets, reviews, progressByCard, importBackupData } = useApp();
   const [message, setMessage] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [ankiExportStatus, setAnkiExportStatus] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleExport = useCallback(async () => {
@@ -99,6 +102,21 @@ export function ExportImport() {
     }
   }, [importBackupData]);
 
+  const handleExportAnki = useCallback((setId: string) => {
+    const set = sets.find(s => s.id === setId);
+    if (!set) return;
+    const anki = exportSetToAnki(set);
+    const blob = new Blob([anki], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${set.title || "set"}.anki.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setAnkiExportStatus(`Экспортировано в Anki: ${set.title}`);
+    setTimeout(() => setAnkiExportStatus("");, 3000);
+  }, [sets]);
+
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-3">
@@ -148,6 +166,22 @@ export function ExportImport() {
           }
         }}
       />
+      <div className="mt-6 flex flex-wrap gap-3">
+        <ImportAnkiButton />
+        {sets.map(set => (
+          <button
+            key={set.id}
+            type="button"
+            onClick={() => handleExportAnki(set.id)}
+            className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-medium text-accent"
+          >
+            Экспорт в Anki: {set.title}
+          </button>
+        ))}
+      </div>
+      {ankiExportStatus && (
+        <div className="mt-2 rounded bg-accent px-4 py-2 text-slate-950">{ankiExportStatus}</div>
+      )}
       {message ? <p className="text-sm text-success">{message}</p> : null}
       {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>

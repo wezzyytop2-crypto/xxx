@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { RootLayoutClient } from "@/components/providers/root-layout-client";
+import { LocaleProvider } from "@/components/providers/locale-provider";
 
 const appName = process.env.NEXT_PUBLIC_APP_NAME || "LIMBI";
 const manrope = Manrope({
@@ -54,9 +55,11 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body className={`${manrope.variable} antialiased`}>
-        <RootLayoutClient>
-          {children}
-        </RootLayoutClient>
+        <LocaleProvider>
+          <RootLayoutClient>
+            {children}
+          </RootLayoutClient>
+        </LocaleProvider>
       </body>
     </html>
   );

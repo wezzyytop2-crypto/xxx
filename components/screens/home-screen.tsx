@@ -21,9 +21,10 @@ import { SetListCard } from "@/features/sets/components/set-list-card";
 import { ProgressBar } from "@/features/shared/progress-components";
 import { BUILT_IN_LIBRARY_STATS } from "@/lib/dictionary";
 import { formatPercent, normalizeAnswer, relativeTimeFromNow } from "@/lib/utils";
+import { AchievementToast } from "@/components/achievement-toast";
 
 export function HomeScreen() {
-  const { ready, sets, appStats, getSetStatsById } = useApp();
+  const { ready, sets, appStats, getSetStatsById, reviews } = useApp();
   const [online, setOnline] = useState(true);
   const [query, setQuery] = useState("");
 
@@ -98,6 +99,7 @@ export function HomeScreen() {
 
   return (
     <div className="screen-pad flex flex-col gap-6 pb-8">
+      <AchievementToast stats={appStats} reviews={reviews} />
       <header className="top-safe flex items-start justify-between gap-3">
         <div className="max-w-xs">
           <p className="section-kicker">Romanian Sprint</p>
