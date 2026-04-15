@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useMemo } from "react";
 import type { ReactNode } from "react";
-import { createSet, deleteSet, ensureSeedData, loadSnapshot, recordReview, resetSetProgress, updateSet } from "@/lib/db";
+import { createSet, deleteSet, ensureSeedData, importBackup, loadSnapshot, recordReview, resetSetProgress, updateSet } from "@/lib/db";
 import { getAppStats, getSetStats } from "@/lib/study";
 import type { AppStats, AuthUserId, CardProgress, ReviewLog, ReviewResult, SaveSetInput, SetStats, StudyMode, StudySet } from "@/lib/types";
 
@@ -20,6 +20,7 @@ type AppContextValue = {
   updateSetItem: (setId: string, input: SaveSetInput) => Promise<StudySet>;
   deleteSetItem: (setId: string) => Promise<void>;
   resetProgressForSet: (setId: string) => Promise<void>;
+  importBackupData: (payload: { sets: StudySet[]; reviews: ReviewLog[]; progress?: CardProgress[] }) => Promise<void>;
   recordCardReview: (payload: {
     setId: string;
     cardId: string;
@@ -161,6 +162,18 @@ export function AppProvider({ children, userId }: { children: ReactNode; userId:
       } catch (err) {
         const error = err instanceof Error ? err : new Error('Failed to reset progress');
         console.error('Reset progress error:', error);
+        setError(error);
+        throw error;
+      }
+    },
+    async importBackupData(payload) {
+      try {
+        await importBackup(userId, payload);
+        await refresh();
+        setError(null);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to import data');
+        console.error('Import backup error:', error);
         setError(error);
         throw error;
       }

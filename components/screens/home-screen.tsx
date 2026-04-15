@@ -118,6 +118,20 @@ export function HomeScreen() {
         <span className="pill-tag text-xs">{BUILT_IN_LIBRARY_STATS.categories} крупных наборов · {BUILT_IN_LIBRARY_STATS.words} слов</span>
       </div>
 
+      <div className="glass-panel rounded-[32px] border border-line/10 p-4">
+        <label className="sr-only" htmlFor="home-search">
+          Поиск по набору и словам
+        </label>
+        <input
+          id="home-search"
+          type="text"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Поиск по темам, словам и примерам"
+          className="field-shell w-full rounded-[24px] border border-line/20 bg-white/70 px-4 py-3 text-sm text-text outline-none transition placeholder:text-muted focus:border-accent/40"
+        />
+      </div>
+
       <section className="hero-panel relative overflow-hidden rounded-[36px] p-6">
         <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-spot/10 blur-3xl" />
@@ -131,8 +145,9 @@ export function HomeScreen() {
             </div>
 
             <div className="accent-ring animate-float flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-[28px] border border-accent/25 bg-accentSoft text-center">
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-950/70">Темп</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-950/70">Уровень {appStats.level}</span>
               <span className="mt-2 text-3xl font-semibold leading-none text-slate-950">{formatPercent(completion)}</span>
+              <span className="mt-1 text-[10px] text-slate-950/70">XP {appStats.xp}</span>
             </div>
           </div>
 

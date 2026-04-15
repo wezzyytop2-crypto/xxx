@@ -20,6 +20,14 @@ type Snapshot = {
   reviews: ReviewLog[];
 };
 
+export type BackupPayload = {
+  sets: StudySet[];
+  reviews: ReviewLog[];
+  progress?: CardProgress[];
+  exportedAt?: string;
+  version?: string;
+};
+
 type StoredSetRecord = {
   key: string;
   userId: AuthUserId;
@@ -120,7 +128,7 @@ const DB_VERSION = 1;
 const LEGACY_DB_NAME = "limbi-local-db";
 const LEGACY_DB_VERSION = 1;
 const SEEDED_KEY = "builtins-version";
-const BUILT_IN_VERSION = "2026-04-15-library-20-sets-expanded";
+const BUILT_IN_VERSION = "2026-04-15-library-24-sets-expanded";
 const LEGACY_IMPORT_KEY = "legacy-import-v1";
 const LEGACY_IMPORT_VERSION = "2026-04-08-user1-import";
 
@@ -469,6 +477,38 @@ export async function deleteSet(userId: AuthUserId, setId: string) {
     userId,
     record.data.cards.map((card) => card.id)
   );
+  invalidateCache(userId);
+}
+
+export async function importBackup(userId: AuthUserId, payload: BackupPayload) {
+  const database = await getDatabase();
+  const tx = database.transaction(["sets", "reviews", "progress"], "readwrite");
+
+  for (const set of payload.sets ?? []) {
+    if (!set.id || !set.cards) {
+      continue;
+    }
+
+    await tx.objectStore("sets").put(toStoredSet(userId, set));
+  }
+
+  for (const review of payload.reviews ?? []) {
+    if (!review.id || !review.cardId) {
+      continue;
+    }
+
+    await tx.objectStore("reviews").put(toStoredReview(userId, review));
+  }
+
+  for (const progress of payload.progress ?? []) {
+    if (!progress.cardId || !progress.setId) {
+      continue;
+    }
+
+    await tx.objectStore("progress").put(toStoredProgress(userId, progress));
+  }
+
+  await tx.done;
   invalidateCache(userId);
 }
 

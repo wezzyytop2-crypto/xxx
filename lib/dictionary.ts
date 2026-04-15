@@ -118,6 +118,13 @@ const SET_BLUEPRINTS: StudySetBlueprint[] = [
     familyIds: ["communication"]
   },
   {
+    id: "expressions",
+    title: "Устойчивые фразы",
+    description: "Частые фразы и выражения, которые звучат естественно.",
+    color: "sky",
+    familyIds: ["expressions"]
+  },
+  {
     id: "everyday-life",
     title: "Повседневная жизнь",
     description: "Частые действия и бытовые рутины, полезные в доме и на улице.",
@@ -250,7 +257,27 @@ function createSupplementalSeedEntry(entry: SupplementalVocabularyEntry): SeedEn
 type QuickWord = {
   term: string;
   translation: string;
+  gender?: "m" | "f" | "n" | "pl";
+  translationFem?: string;
+  translationNeut?: string;
+  translationPl?: string;
 };
+
+function getTranslationForGender(word: QuickWord, gender?: "m" | "f" | "n" | "pl") {
+  if (gender === "f" && word.translationFem) {
+    return word.translationFem;
+  }
+
+  if (gender === "n" && word.translationNeut) {
+    return word.translationNeut;
+  }
+
+  if (gender === "pl" && word.translationPl) {
+    return word.translationPl;
+  }
+
+  return word.translation;
+}
 
 function createPhraseEntries(
   leftWords: QuickWord[],
@@ -265,8 +292,8 @@ function createPhraseEntries(
       e(
         `${left.term} ${right.term}`,
         translationOrder === "left-first"
-          ? `${left.translation} ${right.translation}`
-          : `${right.translation} ${left.translation}`,
+          ? `${getTranslationForGender(left, left.gender)} ${getTranslationForGender(right, right.gender)}`
+          : `${getTranslationForGender(right, right.gender)} ${getTranslationForGender(left, left.gender)}`,
         exampleTemplate(left, right),
         note,
         partOfSpeech
@@ -281,7 +308,17 @@ function createNounAdjectivePhrases(
   note: string,
   exampleTemplate: (noun: QuickWord, adjective: QuickWord) => string
 ) {
-  return createPhraseEntries(nouns, adjectives, note, exampleTemplate, "phrase", "right-first");
+  return nouns.flatMap((noun) =>
+    adjectives.map((adjective) =>
+      e(
+        `${noun.term} ${adjective.term}`,
+        `${getTranslationForGender(adjective, noun.gender)} ${getTranslationForGender(noun, noun.gender)}`,
+        exampleTemplate(noun, adjective),
+        note,
+        "phrase"
+      )
+    )
+  );
 }
 
 function createVerbObjectPhrases(
@@ -380,44 +417,44 @@ const EVERYDAY_ENTRIES = createVerbObjectPhrases(
 );
 
 const CLOTHING_NOUNS: QuickWord[] = [
-  { term: "tricou", translation: "футболка" },
-  { term: "cămașă", translation: "рубашка" },
-  { term: "pantaloni", translation: "штаны" },
-  { term: "fustă", translation: "юбка" },
-  { term: "rochie", translation: "платье" },
-  { term: "geacă", translation: "куртка" },
-  { term: "pulover", translation: "свитер" },
-  { term: "pantofi", translation: "туфли" },
-  { term: "șosete", translation: "носки" },
-  { term: "căciulă", translation: "шапка" },
-  { term: "eșarfă", translation: "шарф" },
-  { term: "costum", translation: "костюм" },
-  { term: "sacou", translation: "пиджак" },
-  { term: "bluză", translation: "блузка" },
-  { term: "rochie", translation: "платье" }
+  { term: "tricou", translation: "футболка", gender: "f" },
+  { term: "cămașă", translation: "рубашка", gender: "f" },
+  { term: "pantaloni", translation: "штаны", gender: "pl" },
+  { term: "fustă", translation: "юбка", gender: "f" },
+  { term: "rochie", translation: "платье", gender: "f" },
+  { term: "geacă", translation: "куртка", gender: "f" },
+  { term: "pulover", translation: "свитер", gender: "m" },
+  { term: "pantofi", translation: "туфли", gender: "pl" },
+  { term: "șosete", translation: "носки", gender: "pl" },
+  { term: "căciulă", translation: "шапка", gender: "f" },
+  { term: "eșarfă", translation: "шарф", gender: "m" },
+  { term: "costum", translation: "костюм", gender: "m" },
+  { term: "sacou", translation: "пиджак", gender: "m" },
+  { term: "bluză", translation: "блузка", gender: "f" },
+  { term: "rochie", translation: "платье", gender: "f" }
 ];
 
 const COLORS: QuickWord[] = [
-  { term: "roșu", translation: "красный" },
-  { term: "albastru", translation: "синий" },
-  { term: "verde", translation: "зеленый" },
-  { term: "galben", translation: "жёлтый" },
-  { term: "negru", translation: "черный" },
-  { term: "alb", translation: "белый" },
-  { term: "maro", translation: "коричневый" },
-  { term: "portocaliu", translation: "оранжевый" },
-  { term: "mov", translation: "фиолетовый" },
-  { term: "roz", translation: "розовый" },
-  { term: "gri", translation: "серый" },
-  { term: "bej", translation: "бежевый" },
-  { term: "auriu", translation: "золотой" },
-  { term: "argintiu", translation: "серебристый" },
-  { term: "deschis", translation: "светлый" },
-  { term: "închis", translation: "тёмный" },
-  { term: "cu dungi", translation: "в полоску" },
-  { term: "cu buline", translation: "в горошек" },
-  { term: "din lână", translation: "шерстяной" },
-  { term: "din bumbac", translation: "хлопковый" }
+  { term: "roșu", translation: "красный", translationFem: "красная", translationPl: "красные" },
+  { term: "albastru", translation: "синий", translationFem: "синяя", translationPl: "синие" },
+  { term: "verde", translation: "зеленый", translationFem: "зелёная", translationPl: "зелёные" },
+  { term: "galben", translation: "жёлтый", translationFem: "жёлтая", translationPl: "жёлтые" },
+  { term: "negru", translation: "черный", translationFem: "чёрная", translationPl: "чёрные" },
+  { term: "alb", translation: "белый", translationFem: "белая", translationPl: "белые" },
+  { term: "maro", translation: "коричневый", translationFem: "коричневая", translationPl: "коричневые" },
+  { term: "portocaliu", translation: "оранжевый", translationFem: "оранжевая", translationPl: "оранжевые" },
+  { term: "mov", translation: "фиолетовый", translationFem: "фиолетовая", translationPl: "фиолетовые" },
+  { term: "roz", translation: "розовый", translationFem: "розовая", translationPl: "розовые" },
+  { term: "gri", translation: "серый", translationFem: "серая", translationPl: "серые" },
+  { term: "bej", translation: "бежевый", translationFem: "бежевая", translationPl: "бежевые" },
+  { term: "auriu", translation: "золотой", translationFem: "золотая", translationPl: "золотые" },
+  { term: "argintiu", translation: "серебристый", translationFem: "серебристая", translationPl: "серебристые" },
+  { term: "deschis", translation: "светлый", translationFem: "светлая", translationPl: "светлые" },
+  { term: "închis", translation: "тёмный", translationFem: "тёмная", translationPl: "тёмные" },
+  { term: "cu dungi", translation: "в полоску", translationFem: "в полоску", translationPl: "в полоску" },
+  { term: "cu buline", translation: "в горошек", translationFem: "в горошек", translationPl: "в горошек" },
+  { term: "din lână", translation: "шерстяной", translationFem: "шерстяная", translationPl: "шерстяные" },
+  { term: "din bumbac", translation: "хлопковый", translationFem: "хлопковая", translationPl: "хлопковые" }
 ];
 
 const CLOTHING_ENTRIES = createNounAdjectivePhrases(
@@ -428,44 +465,44 @@ const CLOTHING_ENTRIES = createNounAdjectivePhrases(
 );
 
 const FURNITURE_NOUNS: QuickWord[] = [
-  { term: "scaun", translation: "стул" },
-  { term: "masă", translation: "стол" },
-  { term: "pat", translation: "кровать" },
-  { term: "canapea", translation: "диван" },
-  { term: "dulap", translation: "шкаф" },
-  { term: "raft", translation: "полка" },
-  { term: "lampă", translation: "лампа" },
-  { term: "covor", translation: "ковер" },
-  { term: "oglindă", translation: "зеркало" },
-  { term: "perdea", translation: "штора" },
-  { term: "bibliotecă", translation: "библиотека" },
-  { term: "birou", translation: "письменный стол" },
-  { term: "noptieră", translation: "тумбочка" },
-  { term: "fotoliu", translation: "кресло" },
-  { term: "frigider", translation: "холодильник" }
+  { term: "scaun", translation: "стул", gender: "m" },
+  { term: "masă", translation: "стол", gender: "m" },
+  { term: "pat", translation: "кровать", gender: "f" },
+  { term: "canapea", translation: "диван", gender: "m" },
+  { term: "dulap", translation: "шкаф", gender: "m" },
+  { term: "raft", translation: "полка", gender: "f" },
+  { term: "lampă", translation: "лампа", gender: "f" },
+  { term: "covor", translation: "ковер", gender: "m" },
+  { term: "oglindă", translation: "зеркало", gender: "n" },
+  { term: "perdea", translation: "штора", gender: "f" },
+  { term: "bibliotecă", translation: "библиотека", gender: "f" },
+  { term: "birou", translation: "письменный стол", gender: "m" },
+  { term: "noptieră", translation: "тумбочка", gender: "f" },
+  { term: "fotoliu", translation: "кресло", gender: "n" },
+  { term: "frigider", translation: "холодильник", gender: "m" }
 ];
 
 const FURNITURE_ADJECTIVES: QuickWord[] = [
-  { term: "mare", translation: "большой" },
-  { term: "mic", translation: "маленький" },
-  { term: "confortabil", translation: "удобный" },
-  { term: "modern", translation: "современный" },
-  { term: "vechi", translation: "старый" },
-  { term: "nou", translation: "новый" },
-  { term: "elegant", translation: "элегантный" },
-  { term: "solid", translation: "прочный" },
-  { term: "din lemn", translation: "деревянный" },
-  { term: "metallic", translation: "металлический" },
-  { term: "alb", translation: "белый" },
-  { term: "negru", translation: "черный" },
-  { term: "moale", translation: "мягкий" },
-  { term: "tare", translation: "жёсткий" },
-  { term: "simplu", translation: "простой" },
-  { term: "spațios", translation: "просторный" },
-  { term: "îngust", translation: "узкий" },
-  { term: "decorativ", translation: "декоративный" },
-  { term: "practic", translation: "практичный" },
-  { term: "luminos", translation: "светлый" }
+  { term: "mare", translation: "большой", translationFem: "большая", translationNeut: "большое", translationPl: "большие" },
+  { term: "mic", translation: "маленький", translationFem: "маленькая", translationNeut: "маленькое", translationPl: "маленькие" },
+  { term: "confortabil", translation: "удобный", translationFem: "удобная", translationNeut: "удобное", translationPl: "удобные" },
+  { term: "modern", translation: "современный", translationFem: "современная", translationNeut: "современное", translationPl: "современные" },
+  { term: "vechi", translation: "старый", translationFem: "старая", translationNeut: "старое", translationPl: "старые" },
+  { term: "nou", translation: "новый", translationFem: "новая", translationNeut: "новое", translationPl: "новые" },
+  { term: "elegant", translation: "элегантный", translationFem: "элегантная", translationNeut: "элегантное", translationPl: "элегантные" },
+  { term: "solid", translation: "прочный", translationFem: "прочная", translationNeut: "прочное", translationPl: "прочные" },
+  { term: "din lemn", translation: "деревянный", translationFem: "деревянная", translationNeut: "деревянное", translationPl: "деревянные" },
+  { term: "metallic", translation: "металлический", translationFem: "металлическая", translationNeut: "металлическое", translationPl: "металлические" },
+  { term: "alb", translation: "белый", translationFem: "белая", translationNeut: "белое", translationPl: "белые" },
+  { term: "negru", translation: "черный", translationFem: "чёрная", translationNeut: "чёрное", translationPl: "чёрные" },
+  { term: "moale", translation: "мягкий", translationFem: "мягкая", translationNeut: "мягкое", translationPl: "мягкие" },
+  { term: "tare", translation: "жёсткий", translationFem: "жёсткая", translationNeut: "жёсткое", translationPl: "жёсткие" },
+  { term: "simplu", translation: "простой", translationFem: "простая", translationNeut: "простое", translationPl: "простые" },
+  { term: "spațios", translation: "просторный", translationFem: "просторная", translationNeut: "просторное", translationPl: "просторные" },
+  { term: "îngust", translation: "узкий", translationFem: "узкая", translationNeut: "узкое", translationPl: "узкие" },
+  { term: "decorativ", translation: "декоративный", translationFem: "декоративная", translationNeut: "декоративное", translationPl: "декоративные" },
+  { term: "practic", translation: "практичный", translationFem: "практичная", translationNeut: "практичное", translationPl: "практичные" },
+  { term: "luminos", translation: "светлый", translationFem: "светлая", translationNeut: "светлое", translationPl: "светлые" }
 ];
 
 const FURNITURE_ENTRIES = createNounAdjectivePhrases(
@@ -519,40 +556,40 @@ const FOOD_ENTRIES = createVerbObjectPhrases(
 );
 
 const SHOPPING_ITEMS: QuickWord[] = [
-  { term: "magazin", translation: "магазин" },
-  { term: "preț", translation: "цена" },
-  { term: "reducere", translation: "скидка" },
-  { term: "card", translation: "карту" },
-  { term: "numerar", translation: "наличные" },
-  { term: "raft", translation: "полку" },
-  { term: "produs", translation: "товар" },
-  { term: "client", translation: "клиента" },
-  { term: "casă de marcat", translation: "кассу" },
-  { term: "cumpărătură", translation: "покупку" },
-  { term: "catalog", translation: "каталог" },
-  { term: "cadou", translation: "подарок" },
-  { term: "pantofi", translation: "туфли" },
-  { term: "haine", translation: "одежду" },
-  { term: "parfum", translation: "парфюм" }
+  { term: "magazin", translation: "магазин", gender: "m" },
+  { term: "preț", translation: "цена", gender: "f" },
+  { term: "reducere", translation: "скидка", gender: "f" },
+  { term: "card", translation: "карту", gender: "m" },
+  { term: "numerar", translation: "наличные", gender: "pl" },
+  { term: "raft", translation: "полку", gender: "m" },
+  { term: "produs", translation: "товар", gender: "m" },
+  { term: "client", translation: "клиента", gender: "m" },
+  { term: "casă de marcat", translation: "кассу", gender: "f" },
+  { term: "cumpărătură", translation: "покупку", gender: "f" },
+  { term: "catalog", translation: "каталог", gender: "m" },
+  { term: "cadou", translation: "подарок", gender: "m" },
+  { term: "pantofi", translation: "туфли", gender: "pl" },
+  { term: "haine", translation: "одежду", gender: "f" },
+  { term: "parfum", translation: "парфюм", gender: "m" }
 ];
 
 const SHOPPING_ADJECTIVES: QuickWord[] = [
-  { term: "ieftin", translation: "дешёвый" },
-  { term: "scump", translation: "дорогой" },
-  { term: "nou", translation: "новый" },
-  { term: "folosit", translation: "использованный" },
-  { term: "disponibil", translation: "доступный" },
-  { term: "potrivit", translation: "подходящий" },
-  { term: "elegant", translation: "элегантный" },
-  { term: "popular", translation: "популярный" },
-  { term: "special", translation: "специальный" },
-  { term: "digital", translation: "цифровой" },
-  { term: "local", translation: "местный" },
-  { term: "importat", translation: "импортный" },
-  { term: "ecologic", translation: "экологичный" },
-  { term: "modern", translation: "современный" },
-  { term: "tradițional", translation: "традиционный" },
-  { term: "confortabil", translation: "комфортный" }
+  { term: "ieftin", translation: "дешёвый", translationFem: "дешевая", translationPl: "дешёвые" },
+  { term: "scump", translation: "дорогой", translationFem: "дорогая", translationPl: "дорогие" },
+  { term: "nou", translation: "новый", translationFem: "новая", translationPl: "новые" },
+  { term: "folosit", translation: "использованный", translationFem: "использованная", translationPl: "использованные" },
+  { term: "disponibil", translation: "доступный", translationFem: "доступная", translationPl: "доступные" },
+  { term: "potrivit", translation: "подходящий", translationFem: "подходящая", translationPl: "подходящие" },
+  { term: "elegant", translation: "элегантный", translationFem: "элегантная", translationPl: "элегантные" },
+  { term: "popular", translation: "популярный", translationFem: "популярная", translationPl: "популярные" },
+  { term: "special", translation: "специальный", translationFem: "специальная", translationPl: "специальные" },
+  { term: "digital", translation: "цифровой", translationFem: "цифровая", translationPl: "цифровые" },
+  { term: "local", translation: "местный", translationFem: "местная", translationPl: "местные" },
+  { term: "importat", translation: "импортный", translationFem: "импортная", translationPl: "импортные" },
+  { term: "ecologic", translation: "экологичный", translationFem: "экологичная", translationPl: "экологичные" },
+  { term: "modern", translation: "современный", translationFem: "современная", translationPl: "современные" },
+  { term: "tradițional", translation: "традиционный", translationFem: "традиционная", translationPl: "традиционные" },
+  { term: "confortabil", translation: "комфортный", translationFem: "комфортная", translationPl: "комфортные" }
 ];
 
 const SHOPPING_ENTRIES = createNounAdjectivePhrases(
@@ -563,39 +600,39 @@ const SHOPPING_ENTRIES = createNounAdjectivePhrases(
 );
 
 const TRAVEL_NOUNS: QuickWord[] = [
-  { term: "autobuz", translation: "автобус" },
-  { term: "tren", translation: "поезд" },
-  { term: "aeroport", translation: "аэропорт" },
-  { term: "hotel", translation: "отель" },
-  { term: "gară", translation: "вокзал" },
-  { term: "taxi", translation: "такси" },
-  { term: "bagaj", translation: "багаж" },
-  { term: "hartă", translation: "карту" },
-  { term: "stradă", translation: "улицу" },
-  { term: "stație", translation: "остановку" },
-  { term: "mașină", translation: "машину" },
-  { term: "bilet", translation: "билет" },
-  { term: "valiză", translation: "чемодан" },
-  { term: "peron", translation: "платформу" },
-  { term: "ghid", translation: "гид" }
+  { term: "autobuz", translation: "автобус", gender: "m" },
+  { term: "tren", translation: "поезд", gender: "m" },
+  { term: "aeroport", translation: "аэропорт", gender: "m" },
+  { term: "hotel", translation: "отель", gender: "m" },
+  { term: "gară", translation: "вокзал", gender: "m" },
+  { term: "taxi", translation: "такси", gender: "m" },
+  { term: "bagaj", translation: "багаж", gender: "m" },
+  { term: "hartă", translation: "карту", gender: "f" },
+  { term: "stradă", translation: "улицу", gender: "f" },
+  { term: "stație", translation: "остановку", gender: "f" },
+  { term: "mașină", translation: "машину", gender: "f" },
+  { term: "bilet", translation: "билет", gender: "m" },
+  { term: "valiză", translation: "чемодан", gender: "f" },
+  { term: "peron", translation: "платформу", gender: "m" },
+  { term: "ghid", translation: "гид", gender: "m" }
 ];
 
 const TRAVEL_ADJECTIVES: QuickWord[] = [
-  { term: "rapid", translation: "быстрый" },
-  { term: "lent", translation: "медленный" },
-  { term: "scump", translation: "дорогой" },
-  { term: "ieftin", translation: "дешёвый" },
-  { term: "confortabil", translation: "комфортный" },
-  { term: "modern", translation: "современный" },
-  { term: "foarte mare", translation: "очень большой" },
-  { term: "mic", translation: "маленький" },
-  { term: "aproape", translation: "близкий" },
-  { term: "distanțat", translation: "удалённый" },
-  { term: "nou", translation: "новый" },
-  { term: "vechi", translation: "старый" },
-  { term: "public", translation: "общественный" },
-  { term: "privat", translation: "частный" },
-  { term: "curat", translation: "чистый" }
+  { term: "rapid", translation: "быстрый", translationFem: "быстрая", translationPl: "быстрые" },
+  { term: "lent", translation: "медленный", translationFem: "медленная", translationPl: "медленные" },
+  { term: "scump", translation: "дорогой", translationFem: "дорогая", translationPl: "дорогие" },
+  { term: "ieftin", translation: "дешёвый", translationFem: "дешевая", translationPl: "дешёвые" },
+  { term: "confortabil", translation: "комфортный", translationFem: "комфортная", translationPl: "комфортные" },
+  { term: "modern", translation: "современный", translationFem: "современная", translationPl: "современные" },
+  { term: "foarte mare", translation: "очень большой", translationFem: "очень большая", translationPl: "очень большие" },
+  { term: "mic", translation: "маленький", translationFem: "маленькая", translationPl: "маленькие" },
+  { term: "aproape", translation: "близкий", translationFem: "близкая", translationPl: "близкие" },
+  { term: "distanțat", translation: "удалённый", translationFem: "удалённая", translationPl: "удалённые" },
+  { term: "nou", translation: "новый", translationFem: "новая", translationPl: "новые" },
+  { term: "vechi", translation: "старый", translationFem: "старая", translationPl: "старые" },
+  { term: "public", translation: "общественный", translationFem: "общественная", translationPl: "общественные" },
+  { term: "privat", translation: "частный", translationFem: "частная", translationPl: "частные" },
+  { term: "curat", translation: "чистый", translationFem: "чистая", translationPl: "чистые" }
 ];
 
 const TRAVEL_ENTRIES = createNounAdjectivePhrases(
@@ -606,39 +643,39 @@ const TRAVEL_ENTRIES = createNounAdjectivePhrases(
 );
 
 const HEALTH_NOUNS: QuickWord[] = [
-  { term: "cap", translation: "голову" },
-  { term: "mână", translation: "руку" },
-  { term: "ochi", translation: "глаз" },
-  { term: "stomac", translation: "желудок" },
-  { term: "picior", translation: "ногу" },
-  { term: "nas", translation: "нос" },
-  { term: "gură", translation: "рот" },
-  { term: "spate", translation: "спину" },
-  { term: "gât", translation: "горло" },
-  { term: "dinți", translation: "зубы" },
-  { term: "inimă", translation: "сердце" },
-  { term: "ureche", translation: "ухо" },
-  { term: "dureri", translation: "боли" },
-  { term: "febră", translation: "лихорадку" },
-  { term: "tuse", translation: "кашель" }
+  { term: "cap", translation: "голову", gender: "f" },
+  { term: "mână", translation: "руку", gender: "f" },
+  { term: "ochi", translation: "глаз", gender: "m" },
+  { term: "stomac", translation: "желудок", gender: "m" },
+  { term: "picior", translation: "ногу", gender: "f" },
+  { term: "nas", translation: "нос", gender: "m" },
+  { term: "gură", translation: "рот", gender: "m" },
+  { term: "spate", translation: "спину", gender: "f" },
+  { term: "gât", translation: "горло", gender: "n" },
+  { term: "dinți", translation: "зубы", gender: "pl" },
+  { term: "inimă", translation: "сердце", gender: "n" },
+  { term: "ureche", translation: "ухо", gender: "n" },
+  { term: "dureri", translation: "боли", gender: "pl" },
+  { term: "febră", translation: "лихорадку", gender: "f" },
+  { term: "tuse", translation: "кашель", gender: "m" }
 ];
 
 const HEALTH_ADJECTIVES: QuickWord[] = [
-  { term: "durere", translation: "болезненный" },
-  { term: "fierbinte", translation: "горячий" },
-  { term: "rece", translation: "холодный" },
-  { term: "obosit", translation: "усталый" },
-  { term: "slăbit", translation: "слабый" },
-  { term: "sănătos", translation: "здоровый" },
-  { term: "inflamat", translation: "воспалённый" },
-  { term: "uleios", translation: "жирный" },
-  { term: "curat", translation: "чистый" },
-  { term: "uscat", translation: "сухой" },
-  { term: "umed", translation: "влажный" },
-  { term: "confuz", translation: "смущённый" },
-  { term: "durere", translation: "болезненный" },
-  { term: "grav", translation: "серьёзный" },
-  { term: "uşor", translation: "лёгкий" }
+  { term: "durere", translation: "болезненный", translationFem: "болезненная", translationNeut: "болезненное", translationPl: "болезненные" },
+  { term: "fierbinte", translation: "горячий", translationFem: "горячая", translationNeut: "горячее", translationPl: "горячие" },
+  { term: "rece", translation: "холодный", translationFem: "холодная", translationNeut: "холодное", translationPl: "холодные" },
+  { term: "obosit", translation: "усталый", translationFem: "усталая", translationNeut: "усталое", translationPl: "усталые" },
+  { term: "slăbit", translation: "слабый", translationFem: "слабая", translationNeut: "слабое", translationPl: "слабые" },
+  { term: "sănătos", translation: "здоровый", translationFem: "здоровая", translationNeut: "здоровое", translationPl: "здоровые" },
+  { term: "inflamat", translation: "воспалённый", translationFem: "воспалённая", translationNeut: "воспалённое", translationPl: "воспалённые" },
+  { term: "uleios", translation: "жирный", translationFem: "жирная", translationNeut: "жирное", translationPl: "жирные" },
+  { term: "curat", translation: "чистый", translationFem: "чистая", translationNeut: "чистое", translationPl: "чистые" },
+  { term: "uscat", translation: "сухой", translationFem: "сухая", translationNeut: "сухое", translationPl: "сухие" },
+  { term: "umed", translation: "влажный", translationFem: "влажная", translationNeut: "влажное", translationPl: "влажные" },
+  { term: "confuz", translation: "смущённый", translationFem: "смущённая", translationNeut: "смущённое", translationPl: "смущённые" },
+  { term: "durere", translation: "болезненный", translationFem: "болезненная", translationNeut: "болезненное", translationPl: "болезненные" },
+  { term: "grav", translation: "серьёзный", translationFem: "серьёзная", translationNeut: "серьёзное", translationPl: "серьёзные" },
+  { term: "uşor", translation: "лёгкий", translationFem: "лёгкая", translationNeut: "лёгкое", translationPl: "лёгкие" }
 ];
 
 const HEALTH_ENTRIES = createNounAdjectivePhrases(
@@ -692,39 +729,39 @@ const WORK_ENTRIES = createVerbObjectPhrases(
 );
 
 const NATURE_NOUNS: QuickWord[] = [
-  { term: "soare", translation: "солнце" },
-  { term: "ploaie", translation: "дождь" },
-  { term: "vânt", translation: "ветер" },
-  { term: "zăpadă", translation: "снег" },
-  { term: "nor", translation: "облако" },
-  { term: "copac", translation: "дерево" },
-  { term: "floare", translation: "цветок" },
-  { term: "munte", translation: "гора" },
-  { term: "mare", translation: "море" },
-  { term: "lac", translation: "озеро" },
-  { term: "pădure", translation: "лес" },
-  { term: "râu", translation: "река" },
-  { term: "plajă", translation: "пляж" },
-  { term: "anotimp", translation: "сезон" },
-  { term: "temperatură", translation: "температура" }
+  { term: "soare", translation: "солнце", gender: "n" },
+  { term: "ploaie", translation: "дождь", gender: "m" },
+  { term: "vânt", translation: "ветер", gender: "m" },
+  { term: "zăpadă", translation: "снег", gender: "m" },
+  { term: "nor", translation: "облако", gender: "n" },
+  { term: "copac", translation: "дерево", gender: "n" },
+  { term: "floare", translation: "цветок", gender: "m" },
+  { term: "munte", translation: "гора", gender: "f" },
+  { term: "mare", translation: "море", gender: "n" },
+  { term: "lac", translation: "озеро", gender: "n" },
+  { term: "pădure", translation: "лес", gender: "m" },
+  { term: "râu", translation: "река", gender: "f" },
+  { term: "plajă", translation: "пляж", gender: "m" },
+  { term: "anotimp", translation: "сезон", gender: "m" },
+  { term: "temperatură", translation: "температура", gender: "f" }
 ];
 
 const NATURE_ADJECTIVES: QuickWord[] = [
-  { term: "cald", translation: "тёплый" },
-  { term: "rece", translation: "холодный" },
-  { term: "senin", translation: "ясный" },
-  { term: "înnorat", translation: "пасмурный" },
-  { term: "ploios", translation: "дождливый" },
-  { term: "zăpăzos", translation: "снежный" },
-  { term: "vântos", translation: "ветреный" },
-  { term: "verde", translation: "зелёный" },
-  { term: "uscat", translation: "сухой" },
-  { term: "umed", translation: "влажный" },
-  { term: "frumos", translation: "красивый" },
-  { term: "împădurit", translation: "лесной" },
-  { term: "înalt", translation: "высокий" },
-  { term: "adânc", translation: "глубокий" },
-  { term: "calm", translation: "спокойный" }
+  { term: "cald", translation: "тёплый", translationFem: "тёплая", translationNeut: "тёплое", translationPl: "тёплые" },
+  { term: "rece", translation: "холодный", translationFem: "холодная", translationNeut: "холодное", translationPl: "холодные" },
+  { term: "senin", translation: "ясный", translationFem: "ясная", translationNeut: "ясное", translationPl: "ясные" },
+  { term: "înnorat", translation: "пасмурный", translationFem: "пасмурная", translationNeut: "пасмурное", translationPl: "пасмурные" },
+  { term: "ploios", translation: "дождливый", translationFem: "дождливая", translationNeut: "дождливое", translationPl: "дождливые" },
+  { term: "zăpăzos", translation: "снежный", translationFem: "снежная", translationNeut: "снежное", translationPl: "снежные" },
+  { term: "vântos", translation: "ветреный", translationFem: "ветреная", translationNeut: "ветреное", translationPl: "ветреные" },
+  { term: "verde", translation: "зелёный", translationFem: "зелёная", translationNeut: "зелёное", translationPl: "зелёные" },
+  { term: "uscat", translation: "сухой", translationFem: "сухая", translationNeut: "сухое", translationPl: "сухие" },
+  { term: "umed", translation: "влажный", translationFem: "влажная", translationNeut: "влажное", translationPl: "влажные" },
+  { term: "frumos", translation: "красивый", translationFem: "красивая", translationNeut: "красивое", translationPl: "красивые" },
+  { term: "împădurit", translation: "лесной", translationFem: "лесная", translationNeut: "лесное", translationPl: "лесные" },
+  { term: "înalt", translation: "высокий", translationFem: "высокая", translationNeut: "высокое", translationPl: "высокие" },
+  { term: "adânc", translation: "глубокий", translationFem: "глубокая", translationNeut: "глубокое", translationPl: "глубокие" },
+  { term: "calm", translation: "спокойный", translationFem: "спокойная", translationNeut: "спокойное", translationPl: "спокойные" }
 ];
 
 const NATURE_ENTRIES = createNounAdjectivePhrases(
@@ -775,39 +812,39 @@ const FEELINGS_ENTRIES = createPhraseEntries(
 );
 
 const PEOPLE_NOUNS: QuickWord[] = [
-  { term: "mamă", translation: "мама" },
-  { term: "tată", translation: "папа" },
-  { term: "frate", translation: "брат" },
-  { term: "soră", translation: "сестра" },
-  { term: "prieten", translation: "друг" },
-  { term: "coleg", translation: "коллега" },
-  { term: "vecin", translation: "сосед" },
-  { term: "copil", translation: "ребенок" },
-  { term: "bunică", translation: "бабушка" },
-  { term: "bunic", translation: "дедушка" },
-  { term: "soț", translation: "муж" },
-  { term: "soție", translation: "жена" },
-  { term: "șef", translation: "начальник" },
-  { term: "student", translation: "студент" },
-  { term: "profesor", translation: "преподаватель" }
+  { term: "mamă", translation: "мама", gender: "f" },
+  { term: "tată", translation: "папа", gender: "m" },
+  { term: "frate", translation: "брат", gender: "m" },
+  { term: "soră", translation: "сестра", gender: "f" },
+  { term: "prieten", translation: "друг", gender: "m" },
+  { term: "coleg", translation: "коллега", gender: "m" },
+  { term: "vecin", translation: "сосед", gender: "m" },
+  { term: "copil", translation: "ребенок", gender: "m" },
+  { term: "bunică", translation: "бабушка", gender: "f" },
+  { term: "bunic", translation: "дедушка", gender: "m" },
+  { term: "soț", translation: "муж", gender: "m" },
+  { term: "soție", translation: "жена", gender: "f" },
+  { term: "șef", translation: "начальник", gender: "m" },
+  { term: "student", translation: "студент", gender: "m" },
+  { term: "profesor", translation: "преподаватель", gender: "m" }
 ];
 
 const PEOPLE_ADJECTIVES: QuickWord[] = [
-  { term: "bun", translation: "хороший" },
-  { term: "rău", translation: "плохой" },
-  { term: "fericit", translation: "счастливый" },
-  { term: "trist", translation: "грустный" },
-  { term: "ocupat", translation: "занятый" },
-  { term: "prietenos", translation: "дружелюбный" },
-  { term: "amabil", translation: "вежливый" },
-  { term: "tânăr", translation: "молодой" },
-  { term: "bătrân", translation: "старый" },
-  { term: "energetic", translation: "энергичный" },
-  { term: "calm", translation: "спокойный" },
-  { term: "serios", translation: "серьёзный" },
-  { term: "talentat", translation: "талантливый" },
-  { term: "gentil", translation: "милый" },
-  { term: "curajos", translation: "смелый" }
+  { term: "bun", translation: "хороший", translationFem: "хорошая", translationPl: "хорошие" },
+  { term: "rău", translation: "плохой", translationFem: "плохая", translationPl: "плохие" },
+  { term: "fericit", translation: "счастливый", translationFem: "счастливая", translationPl: "счастливые" },
+  { term: "trist", translation: "грустный", translationFem: "грустная", translationPl: "грустные" },
+  { term: "ocupat", translation: "занятый", translationFem: "занятая", translationPl: "занятые" },
+  { term: "prietenos", translation: "дружелюбный", translationFem: "дружелюбная", translationPl: "дружелюбные" },
+  { term: "amabil", translation: "вежливый", translationFem: "вежливая", translationPl: "вежливые" },
+  { term: "tânăr", translation: "молодой", translationFem: "молодая", translationPl: "молодые" },
+  { term: "bătrân", translation: "старый", translationFem: "старая", translationPl: "старые" },
+  { term: "energetic", translation: "энергичный", translationFem: "энергичная", translationPl: "энергичные" },
+  { term: "calm", translation: "спокойный", translationFem: "спокойная", translationPl: "спокойные" },
+  { term: "serios", translation: "серьёзный", translationFem: "серьёзная", translationPl: "серьёзные" },
+  { term: "talentat", translation: "талантливый", translationFem: "талантливая", translationPl: "талантливые" },
+  { term: "gentil", translation: "милый", translationFem: "милая", translationPl: "милые" },
+  { term: "curajos", translation: "смелый", translationFem: "смелая", translationPl: "смелые" }
 ];
 
 const PEOPLE_ENTRIES = createNounAdjectivePhrases(
@@ -817,6 +854,27 @@ const PEOPLE_ENTRIES = createNounAdjectivePhrases(
   (noun, adjective) => `Este un ${noun.term} ${adjective.term}.`
 );
 
+const EXPRESSIONS_ENTRIES: SeedEntry[] = [
+  e("a avea nevoie de", "нуждаться в", "Am nevoie de un sfat bun.", "Частая устойчивость с инфинитивом.", "phrase"),
+  e("a se descurca", "справляться", "Mă descurc cu sarcinile de azi.", "Глагол возвратный.", "verb"),
+  e("a pune întrebări", "задавать вопросы", "Pun întrebări atunci când nu înțeleg.", "Употребляется в учебном и общении.", "phrase"),
+  e("a da o mână de ajutor", "помочь", "Îi dau o mână de ajutor la mutare.", "Устойчивое выражение помощи.", "expression"),
+  e("a face o plimbare", "прогуляться", "Fac o plimbare în parc după-amiaza.", "Широко используется в разговоре.", "phrase"),
+  e("a face cunoscuta", "знакомить", "Îl fac cunoscut pe colegul meu.", "Разговорный оборот.", "phrase"),
+  e("a se simți bine", "чувствовать себя хорошо", "Mă simt bine astăzi.", "Частое выражение настроения.", "phrase"),
+  e("a avea grijă", "заботиться", "Am grijă de plantele din casă.", "Устойчивый оборот заботы.", "phrase"),
+  e("a avea timp", "иметь время", "Am timp să repet înainte de curs.", "Шаблон для рутинной речи.", "phrase"),
+  e("a fi de acord", "соглашаться", "Sunt de acord cu ideea ta.", "Частое выражение согласия.", "phrase"),
+  e("a lua legătura", "связаться", "O să iau legătura cu profesorul.", "Полезно для деловой и учебной речи.", "phrase"),
+  e("a face o rezervare", "забронировать", "Fac o rezervare la restaurant.", "Фраза для путешествий и еды.", "phrase"),
+  e("a ajunge la timp", "прийти вовремя", "Am ajuns la timp la întâlnire.", "Распространенное выражение для расписания.", "phrase"),
+  e("a avea chef", "иметь настроение", "Am chef să ies în oraș.", "Устойчивый оборот 'иметь желание'.", "phrase"),
+  e("a ține minte", "запомнить", "Ține minte această regulă.", "Устойчивое выражение памяти.", "phrase"),
+  e("a da un exemplu", "привести пример", "Dă-mi un exemplu simplu.", "Полезно для объяснений.", "phrase"),
+  e("a vorbi deschis", "говорить открыто", "Vorbește deschis despre planuri.", "Частое выражение общения.", "phrase"),
+  e("a trage o concluzie", "сделать вывод", "Trage o concluzie după discuție.", "Устойчивое выражение для обобщений.", "phrase")
+];
+
 const GENERATED_FAMILIES: DictionaryFamily[] = [
   {
     id: "communication",
@@ -824,6 +882,13 @@ const GENERATED_FAMILIES: DictionaryFamily[] = [
     description: "Фразы и слова для разговоров, вопросов и общения.",
     color: "rose",
     entries: COMMUNICATION_ENTRIES
+  },
+  {
+    id: "expressions",
+    title: "Устойчивые фразы",
+    description: "Частые фразы и выражения, которые звучат естественно.",
+    color: "sky",
+    entries: EXPRESSIONS_ENTRIES
   },
   {
     id: "everyday-life",

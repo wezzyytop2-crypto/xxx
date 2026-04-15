@@ -1,18 +1,21 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { DownloadIcon } from "@/components/icons";
+import { useCallback, useRef, useState } from "react";
+import { DownloadIcon, UploadIcon } from "@/components/icons";
 import { useApp } from "@/components/providers/app-provider";
 import { cn } from "@/lib/utils";
 
 export function ExportImport() {
-  const { sets, reviews } = useApp();
+  const { sets, reviews, progressByCard, importBackupData } = useApp();
   const [message, setMessage] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleExport = useCallback(async () => {
     const data = {
       sets,
       reviews,
+      progress: Object.values(progressByCard),
       exportedAt: new Date().toISOString(),
       version: "1.0"
     };
@@ -27,23 +30,79 @@ export function ExportImport() {
     URL.revokeObjectURL(url);
 
     setMessage("Резервная копия сохранена.");
+    setError("");
     setTimeout(() => setMessage(""), 3000);
-  }, [sets, reviews]);
+  }, [sets, reviews, progressByCard]);
+
+  const handleImport = useCallback(async (file: File) => {
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      if (!parsed?.sets || !Array.isArray(parsed.sets)) {
+        throw new Error("Файл не содержит действительных наборов.");
+      }
+
+      if (!parsed?.reviews || !Array.isArray(parsed.reviews)) {
+        throw new Error("Файл не содержит действительных отзывов.");
+      }
+
+      await importBackupData({
+        sets: parsed.sets,
+        reviews: parsed.reviews,
+        progress: Array.isArray(parsed.progress) ? parsed.progress : []
+      });
+
+      setMessage("Данные успешно импортированы.");
+      setError("");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Не удалось импортировать файл.";
+      setError(message);
+      setMessage("");
+    }
+  }, [importBackupData]);
 
   return (
     <div className="space-y-3">
-      <button
-        type="button"
-        onClick={handleExport}
-        className={cn(
-          "primary-action inline-flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold text-slate-950",
-          "transition"
-        )}
-      >
-        <DownloadIcon className="h-4 w-4" />
-        Экспортировать данные
-      </button>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={handleExport}
+          className={cn(
+            "primary-action inline-flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold text-slate-950",
+            "transition"
+          )}
+        >
+          <DownloadIcon className="h-4 w-4" />
+          Экспортировать данные
+        </button>
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className={cn(
+            "secondary-action inline-flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-3.5 text-sm font-semibold text-text",
+            "transition"
+          )}
+        >
+          <UploadIcon className="h-4 w-4" />
+          Импортировать из JSON
+        </button>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/json"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) {
+            void handleImport(file);
+          }
+        }}
+      />
       {message ? <p className="text-sm text-success">{message}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }

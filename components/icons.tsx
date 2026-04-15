@@ -174,6 +174,16 @@ export function DownloadIcon(props: IconProps) {
   );
 }
 
+export function UploadIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <path d="M12 20V10" />
+      <path d="m8 14 4-4 4 4" />
+      <path d="M4 4h16" />
+    </BaseIcon>
+  );
+}
+
 export function LogOutIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>
