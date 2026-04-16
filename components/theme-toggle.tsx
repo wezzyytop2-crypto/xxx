@@ -19,6 +19,8 @@ function getPreferredTheme(): ThemeMode {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
+
+export function ThemeToggle({ className }: { className?: string }) {
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [mounted, setMounted] = useState(false);
   const userSelected = useRef(false);

@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 // @ts-ignore
-import { requestNotificationPermission, scheduleReviewReminder } from "../../public/push-notifications";
+import { requestNotificationPermission, scheduleReviewReminder } from "@/public/push-notifications";
 import type { ReactNode } from "react";
 import { BottomNav } from "@/components/bottom-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
