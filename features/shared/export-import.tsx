@@ -114,7 +114,7 @@ export function ExportImport() {
     a.click();
     URL.revokeObjectURL(url);
     setAnkiExportStatus(`Экспортировано в Anki: ${set.title}`);
-    setTimeout(() => setAnkiExportStatus("");, 3000);
+    setTimeout(() => setAnkiExportStatus(""), 3000);
   }, [sets]);
 
   return (

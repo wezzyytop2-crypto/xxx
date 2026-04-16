@@ -184,7 +184,7 @@ export function SetDetailScreen({ setId }: { setId: string }) {
           onClick={shareSet}
           className="inline-flex items-center justify-center gap-2 rounded-[24px] border border-accent/40 bg-accent/10 px-4 py-4 text-sm font-medium text-accent"
         >
-          <ShareIcon className="h-4 w-4" />
+          <StarIcon className="h-4 w-4" />
           Поделиться
         </button>
       </section>

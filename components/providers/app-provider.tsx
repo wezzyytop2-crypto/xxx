@@ -196,6 +196,15 @@ export function AppProvider({ children, userId }: { children: ReactNode; userId:
         setError(error);
         throw error;
       }
+    },
+    speak(text: string) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const utterance = new window.SpeechSynthesisUtterance(text);
+        utterance.lang = 'ro-RO';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 

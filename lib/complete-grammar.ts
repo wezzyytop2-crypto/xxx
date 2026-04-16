@@ -61,6 +61,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
       { romanian: "la băiatul", russian: "к мальчику" },
       { romanian: "de casa", russian: "от дома" }
     ],
+    tip: "",
     category: "articles",
     difficulty: "medium"
   },
@@ -76,6 +77,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
       { romanian: "casă (f)", russian: "дом" },
       { romanian: "nume (n)", russian: "имя" }
     ],
+    tip: "",
     category: "gender",
     difficulty: "basic"
   },
@@ -88,6 +90,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "casă → case", russian: "дом → дома" }
     ],
+    tip: "",
     category: "number",
     difficulty: "basic"
   },
@@ -100,6 +103,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "vorbesc/vorbești/vorbește", russian: "говорю/говоришь/говорит" }
     ],
+    tip: "",
     category: "verbs",
     difficulty: "basic"
   },
@@ -112,6 +116,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "Eu mănânc", russian: "Я ем" }
     ],
+    tip: "",
     category: "tenses",
     difficulty: "basic"
   },
@@ -124,6 +129,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "la școală", russian: "в школу" }
     ],
+    tip: "",
     category: "prepositions",
     difficulty: "basic"
   },
@@ -136,6 +142,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "mare și mic", russian: "большой и маленький" }
     ],
+    tip: "",
     category: "conjunctions",
     difficulty: "basic"
   },
@@ -148,6 +155,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "rapid → rapid", russian: "быстро" }
     ],
+    tip: "",
     category: "adverbs",
     difficulty: "medium"
   },
@@ -160,6 +168,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "mai mare decât", russian: "больше чем" }
     ],
+    tip: "",
     category: "comparison",
     difficulty: "basic"
   },
@@ -172,6 +181,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "Vreau să mănânc", russian: "Хочу поесть" }
     ],
+    tip: "",
     category: "subjunctive",
     difficulty: "advanced"
   },
@@ -184,6 +194,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "Dacă plouă", russian: "Если дождь" }
     ],
+    tip: "",
     category: "conditionals",
     difficulty: "advanced"
   },
@@ -196,6 +207,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "băiat", russian: "бэ-я́т" }
     ],
+    tip: "",
     category: "phonetics",
     difficulty: "basic"
   },
@@ -209,6 +221,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
       { romanian: "râul (река)", russian: "Â в корне" },
       { romanian: "mâna", russian: "Î в окончании" }
     ],
+    tip: "",
     category: "spelling",
     difficulty: "medium"
   },
@@ -223,6 +236,7 @@ export const COMPLETE_GRAMMAR_RULES: GrammarRule[] = [
     examples: [
       { romanian: "școală vs scoala", russian: "\"школа\" vs непонятно" }
     ],
+    tip: "",
     category: "spelling",
     difficulty: "basic"
   }

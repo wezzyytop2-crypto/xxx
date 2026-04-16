@@ -114,11 +114,7 @@ export function GrammarRulesScreen() {
                       <div key={idx} className="rounded-lg bg-white/5 p-3">
                         <p className="text-sm font-semibold text-accent">{example.romanian}</p>
                         <p className="mt-1 text-sm text-text">{example.russian}</p>
-                        {example.explanation && (
-                          <p className="mt-2 text-xs leading-5 text-muted">
-                            {example.explanation}
-                          </p>
-                        )}
+                        {/* explanation отсутствует в данных, поэтому не отображаем */}
                       </div>
                     ))}
                   </div>

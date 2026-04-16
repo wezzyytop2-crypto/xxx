@@ -1,6 +1,8 @@
 // 100+ ПОЛНЫХ ГРАММАТИЧЕСКИХ ПРАВИЛ РУМЫНСКОГО ЯЗЫКА
 // Каждая категория с 4-8 правилами, примеры, советы, аудио
 
+import type { GrammarRule } from "@/lib/complete-grammar";
+
 export const FULL_GRAMMAR_RULES: GrammarRule[] = [
   // АРТИКЛИ - 12 правил
   {
@@ -15,6 +17,8 @@ export const FULL_GRAMMAR_RULES: GrammarRule[] = [
     tip: "un = 'один/некий' для м/н",
     category: "articles",
     difficulty: "basic"
+  }
+];
   },
   {
     id: "art-indef-f",
@@ -63,4 +67,12 @@ export const FULL_GRAMMAR_RULES: GrammarRule[] = [
 
   // Финальное правило
   {
-    id: "spelling-di
+    id: "spelling-di",
+    title: "Диакритика обязательна",
+    descriptionRu: "Используйте буквы Ș, Ț, Â, Î — без них слово не узнают!",
+    examples: [
+      { romanian: "școală vs scoala", russian: '"школа" vs непонятно' }
+    ],
+    tip: "Пишите с диакритикой!",
+    category: "spelling",
+    difficulty: "basic"
