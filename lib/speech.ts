@@ -1,3 +1,7 @@
+// Удобная обёртка для румынского языка
+export function speakRomanian(text: string) {
+  return speak(text, 'ro-RO');
+}
 // TTS — Google Web Speech API
 export async function speak(text: string, lang: 'ro-RO' | 'ru-RU' = 'ro-RO') {
   if ('speechSynthesis' in window) {
