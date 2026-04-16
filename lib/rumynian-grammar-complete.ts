@@ -84,6 +84,7 @@ export const RUMYNIAN_GRAMMAR_105: GrammarRule[] = [
       { romanian: "băieții", russian: "те мальчики" },
       { romanian: "casele", russian: "те дома" }
     ],
+    tip: "Во множественном числе артикль интегрирован в окончание.",
     category: "articles",
     difficulty: "medium"
   },
@@ -95,6 +96,7 @@ export const RUMYNIAN_GRAMMAR_105: GrammarRule[] = [
       { romanian: "la băiatul", russian: "к мальчику" },
       { romanian: "de casa", russian: "от дома" }
     ],
+    tip: "Используйте с предлогами для указания принадлежности.",
     category: "articles",
     difficulty: "medium"
   },
@@ -111,6 +113,7 @@ export const RUMYNIAN_GRAMMAR_105: GrammarRule[] = [
       { romanian: "tată", russian: "отец" },
       { romanian: "prieten", russian: "друг" }
     ],
+    tip: "Мужской род обычно оканчивается на согласную или -e.",
     category: "gender",
     difficulty: "easy"
   },
@@ -127,6 +130,7 @@ export const RUMYNIAN_GRAMMAR_105: GrammarRule[] = [
       { romanian: "este (el)", russian: "он есть" },
       { romanian: "suntem (noi)", russian: "мы есть" }
     ],
+    tip: "a fi — основной глагол, учите формы наизусть.",
     category: "verbs",
     difficulty: "easy"
   },

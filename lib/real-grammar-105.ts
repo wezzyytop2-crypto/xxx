@@ -13,9 +13,10 @@ export type GrammarRule = {
   category: string;
 };
 
-// Удалён не входящий ни в какой массив или функцию фрагмент объекта
-// Удалён не входящий ни в какой массив объект (id: 'art2', ...)
-  
+
+// Здесь должен быть массив правил
+export const REAL_GRAMMAR_105: GrammarRule[] = [
+  // ...здесь должны быть объекты правил...
 ];
 
 export function getRules() {
