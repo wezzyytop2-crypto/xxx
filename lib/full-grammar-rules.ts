@@ -17,8 +17,6 @@ export const FULL_GRAMMAR_RULES: GrammarRule[] = [
     tip: "un = 'один/некий' для м/н",
     category: "articles",
     difficulty: "basic"
-  }
-];
   },
   {
     id: "art-indef-f",
@@ -76,3 +74,5 @@ export const FULL_GRAMMAR_RULES: GrammarRule[] = [
     tip: "Пишите с диакритикой!",
     category: "spelling",
     difficulty: "basic"
+  }
+];
